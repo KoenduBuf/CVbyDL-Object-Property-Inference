@@ -12,8 +12,8 @@ vegitables, from which we will try to infer their mass.
 
 ### Reference papers
 
-[Estimate mass of regular objects from images](http://proceedings.mlr.press/v78/standley17a/standley17a.pdf)
-[Deep CNN to estimate length and weight of fish](https://onlinelibrary.wiley.com/doi/full/10.1002/ece3.6618)
+[Estimate mass of regular objects from images](http://proceedings.mlr.press/v78/standley17a/standley17a.pdf)\
+[Deep CNN to estimate length and weight of fish](https://onlinelibrary.wiley.com/doi/full/10.1002/ece3.6618)\
 
 ### Our dataset
 
