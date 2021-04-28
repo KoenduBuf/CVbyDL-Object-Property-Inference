@@ -2,7 +2,9 @@
 # Computer Vision by Deep Learning
 
 A repository for the Computer Vision by Deep Learning course 2021.
-Project group 3: Koen du Buf and Olivier Dikken
+Project group 3: Koen du Buf and Olivier Dikken.
+A blog about the project is present in the docs folder, and hosted
+[here](https://koendubuf.github.io/CVbyDL-Object-Property-Inference/).
 
 # Object Property Inference
 
