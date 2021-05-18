@@ -6,17 +6,17 @@ from torch.utils.data import Dataset
 
 class FruitImage:
     def __init__(self, from_file):
-        base_name   = os.path.basename(from_file)
-        name_parts  = base_name.split('_')
-        self.type   = name_parts[0]
-        self.weight = int(name_parts[1].split('g')[0])
-        self.index  = name_parts[1].split(' ')[1]
-        self.file   = from_file
+        base_name    = os.path.basename(from_file)
+        name_parts   = base_name.split('_')
+        self.type    = name_parts[0]
+        self.weight  = int(name_parts[2][:-1])
+        self.index   = name_parts[3]
+        self.file    = from_file
 
 
 class FruitImageDataset(Dataset):
     DEFAULT_TYPES = ("apple", "banana", "kiwi",
-        "union", "tomato", "orange", "manderin")
+        "union", "tomato", "orange", "mandarin")
 
     def __init__(self, folder, types=DEFAULT_TYPES):
         self.types = types
