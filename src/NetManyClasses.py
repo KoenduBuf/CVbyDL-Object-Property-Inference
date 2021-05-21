@@ -2,14 +2,23 @@
 
 # Load and show some images
 
+import torch
+
+from DataSet import FruitImageDataset
 import matplotlib.pyplot as plt
 import numpy as np
 
 def imshow(img):
-    img = img / 2 + 0.5     # unnormalize
+#    img = img / 2 + 0.5     # unnormalize
     npimg = img.numpy()
     plt.imshow(np.transpose(npimg, (1, 2, 0)))
     plt.show()
+
+batch_size = 4
+trainset = FruitImageDataset("../images")
+trainloader = torch.utils.data.DataLoader(
+        trainset, batch_size=batch_size,
+        shuffle=True, num_workers=2 )
 
 # get some random training images
 dataiter = iter(trainloader)

@@ -2,7 +2,8 @@
 
 import os
 from torch.utils.data import Dataset
-
+from torchvision import transforms
+from PIL import Image
 
 class FruitImage:
     def __init__(self, from_file):
@@ -34,7 +35,9 @@ class FruitImageDataset(Dataset):
 
     def __getitem__(self, index):
         fi = self.fruit_images[index]
-        return fi
+        imgdata = Image.open(fi.file)
+        imgdata = transforms.ToTensor()(imgdata).unsqueeze_(0)
+        return { 'X': imgdata, 'Y': fi.type }
 
     def summary_of_type(self, t):
         of_fruit = filter(lambda fi: fi.type == t, self.fruit_images)
