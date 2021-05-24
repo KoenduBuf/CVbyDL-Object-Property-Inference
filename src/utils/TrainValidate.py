@@ -32,22 +32,35 @@ def train(model, criterion, optimizer, dataset, epochs = 10, batch_size=4):
     return total_acc / epochs
 
 
-def validate(model, dataset, batch_size=4):
+def validate(model, dataset, batch_size=4, show_for_classes=[]):
     data_loader = torch.utils.data.DataLoader(dataset,
         batch_size=batch_size, shuffle=True, num_workers=2)
     correct = total = 0
+    correct_pred = [ 0 ] * len(show_for_classes)
+    total_pred = [ 0 ] * len(show_for_classes)
     # not training, no need to calculate the gradients
     with torch.no_grad():
         for data in data_loader:
             # Run our network
             images, labels = data
             outputs = model(images)
+            _, predictions = torch.max(outputs.data, 1)
             # Get the statistics
-            _, predicted = torch.max(outputs.data, 1)
-            correct += (predicted == labels).sum().item()
+            correct += (predictions == labels).sum().item()
             total += labels.size(0)
+            # collect the correct predictions for each class
+            for label, prediction in zip(labels, predictions):
+                if len(show_for_classes) <= label: continue
+                if label == prediction:
+                    correct_pred[label] += 1
+                total_pred[label] += 1
+
     acc = correct / total
     print(f"  VALIDATION: {acc * 100:.1f}% correctly classified")
+    accs = map(lambda tpl: tpl[0] / tpl[1], zip(correct_pred, total_pred))
+    for clas, cacc in zip(show_for_classes, accs):
+        print("Accuracy on class " + clas.rjust(9)
+        + " is " + str(round(cacc * 100, 2)).rjust(4))
     return acc
 
 
