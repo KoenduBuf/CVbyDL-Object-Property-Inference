@@ -34,7 +34,7 @@ class Resizer:
         os.makedirs(tof, exist_ok=True)
         for img_from, filename in self.todo_images():
             img = Image.open(img_from)
-            resized = img.resize(tosize)
+            resized = img.resize(tosize, Image.ANTIALIAS)
             tofile = os.path.join(tof, filename)
             resized.save(tofile)
         return tof
