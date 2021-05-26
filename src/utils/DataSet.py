@@ -25,7 +25,7 @@ class FruitImage:
 
 class FruitImageDataset(Dataset):
     DEFAULT_TYPES = ("apple", "banana", "kiwi",
-        "union", "tomato", "orange", "mandarin")
+        "onion", "tomato", "orange", "mandarin")
 
     def __init__(self, folder, types=DEFAULT_TYPES, transform=None):
         self.types = types
