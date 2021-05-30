@@ -47,4 +47,4 @@ if __name__ == '__main__':
     resizer = Resizer('../images', '../images')
     minw, minh, maxw, maxh = resizer.sizes_summary()
     print(f"Width: {minw}-{maxw} | Height: {minh}-{maxh}")
-    resizer.autoresize(128)
+    resizer.autoresize(256)
