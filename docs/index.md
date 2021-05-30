@@ -11,7 +11,8 @@ Our dataset for these experiments consists of homemade pictures of fruits. The d
 
 | A banana of 148 grams | A banana of 173 grams | A banana of 188 grams |
 | :-: | :-: | :-: |
-| ![banana 148g](https://koendubuf.github.io/CVbyDL-Object-Property-Inference/images/banana_148g_5_1.jpg)  |  ![banana 173g](https://koendubuf.github.io/CVbyDL-Object-Property-Inference/images/banana_173g_6_1.JPG) | ![banana 173g](https://koendubuf.github.io/CVbyDL-Object-Property-Inference/images/banana_188g_3_1.jpg) |
+| ![banana 148g](https://koendubuf.github.io/CVbyDL-Object-Property-Inference/images/banana_148g_5_1.jpg) |  ![banana 173g](https://koendubuf.github.io/CVbyDL-Object-Property-Inference/images/banana_173g_6_1.JPG) | ![banana 173g](https://koendubuf.github.io/CVbyDL-Object-Property-Inference/images/banana_188g_3_1.jpg) |
+
 
 | class    | Amount | Unique weights |  Weight: min-avg-max |
 |:--------:|:------:|:--------------:|:--------------------:|
@@ -37,4 +38,6 @@ So we can classify fruits, that means that we already have the most simple CNN f
 
 Next we tried to train a single CNN to classify the fruits again, but this time we tried to classify them by their weight range. This means that instead of 1 label for each fruit class, we created classes for every N grams (0-N, N-2N, 2N-3N, etc...), results...
 
-#
+# Using multiple networks?
+
+...
