@@ -10,6 +10,7 @@ def img_file_extension(filename):
         ext = ext.decode('utf-8')
     return ext.lower() in { '.jpg', '.jpeg', '.png' }
 
+
 class FruitImage:
     def __init__(self, from_file, on_types):
         base_name    = os.path.basename(from_file)
@@ -80,7 +81,6 @@ class FruitImageDataset(Dataset):
         return nw
 
 
-
 def dataset_summary_table(dataset, name):
     returnlist = [ name.ljust(11) +
         f"Amount/Uniq     Weight min-avg-max", " -" * 22 + " " ]
@@ -115,4 +115,4 @@ def print_summary_tables(*set_name_tuples, side_to_side=2):
 
 if __name__=="__main__":
     ds = FruitImageDataset("../images")
-    print_summary_tables( (ds, ""), (ds, "B") )
+    print_summary_tables( (ds, "") )
