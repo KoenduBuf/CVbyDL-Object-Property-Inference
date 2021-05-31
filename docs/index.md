@@ -1,3 +1,4 @@
+<link type="text/css" rel="stylesheet" href="style.css" />
 
 # A quick introduction
 
@@ -5,24 +6,27 @@ Hello, we are... this  is about...
 
 # Goals, and our dataset
 
-For the goal of this project we try to create a CNN that...
+For the goal of this project we try to create a CNN that can estimate the weight of various classes of fruit, and to try different approaches to find the machine learning model with the highest accuracy for this task.
 
-Our dataset for these experiments consists of homemade pictures of fruits. The dataset contains 7 fruit classes, `apple`, `banana`, `kiwi`, `onion`, `tomato`, `orange`, and `mandarin`, for each of these classes we have around 190 pictures from various angles including different sceneries and images where the fruit is partially obscured. All of the images are labeled with the type of fruit in the picture and the weight of that piece of fruit, a few example of the banana class and a quick table on our dataset are given below.
+Our dataset for this problem consists of homemade pictures of fruits. The dataset contains 7 fruit classes, `apple`, `banana`, `kiwi`, `onion`, `tomato`, `orange`, and `mandarin`, for each of these classes we have around 190 square pictures from various angles including different sceneries and images where the fruit is partially obscured. All of the images are labeled with the type of fruit in the picture and the weight of that piece of fruit, a few example of the banana class and a quick table on our dataset are given below.
+
+<span class="note">Note: For the squaring of these images, we cropped them in such a way that as little of the fruit as possible was cut from the images, for this we used a little program we wrote that is publicly available [here](https://github.com/KoenduBuf/tk-imgdecide).</span>
 
 | A banana of 148 grams | A banana of 173 grams | A banana of 188 grams |
-| :-: | :-: | :-: |
+| :-------------------: | :-------------------: | :-------------------: |
 | ![banana 148g](https://koendubuf.github.io/CVbyDL-Object-Property-Inference/images/banana_148g_5_1.jpg) |  ![banana 173g](https://koendubuf.github.io/CVbyDL-Object-Property-Inference/images/banana_173g_6_1.JPG) | ![banana 173g](https://koendubuf.github.io/CVbyDL-Object-Property-Inference/images/banana_188g_3_1.jpg) |
 
+<br />
 
-| class    | Amount | Unique weights |  Weight: min-avg-max |
-|:--------:|:------:|:--------------:|:--------------------:|
-| apple    |    195 |    13          |  165 - 188.7 - 206   |
-| banana   |    190 |    18          |  139 - 170.2 - 193   |
-| kiwi     |    101 |     5          |   97 -  99.0 - 103   |
-| onion    |    142 |    14          |   68 - 128.3 - 179   |
-| tomato   |    191 |    12          |   71 - 130.3 - 177   |
-| orange   |    196 |    16          |  151 - 174.7 - 209   |
-| mandarin |     91 |     6          |   98 - 106.2 - 118   |
+| class    | #Images | #Unique weights |  Weight: min-avg-max |
+|:--------:|:-------:|:---------------:|:--------------------:|
+| apple    |    195  |    13           |  165 - 188.7 - 206   |
+| banana   |    190  |    18           |  139 - 170.2 - 193   |
+| kiwi     |    101  |     5           |   97 -  99.0 - 103   |
+| onion    |    142  |    14           |   68 - 128.3 - 179   |
+| tomato   |    191  |    12           |   71 - 130.3 - 177   |
+| orange   |    196  |    16           |  151 - 174.7 - 209   |
+| mandarin |     91  |     6           |   98 - 106.2 - 118   |
 
 # Training and test sets
 
