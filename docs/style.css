@@ -1,5 +1,8 @@
 
 .note {
-    background-color: gray;
-    color: red;
+    display: block;
+    padding: 15px;
+    border: 1px solid gray;
+    background-color: #dae4f5;
+    color: darkslategray;
 }
