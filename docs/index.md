@@ -34,7 +34,7 @@ With the already small dataset, and the split into a train and test set, we have
 
 # A first test: Fruit classification + weight averages
 
-We made a CNN that classified the images just by their fruit class. This classifier generally reached a <div class="tooltip">classification accuracy of 70%<span class="tooltiptext">In perspective: random guessing would give a 1/7 = 14% classification accuracy</span></div>.
+We made a CNN that classified the images just by their fruit class. This classifier generally reached a <span class="tooltip"> classification accuracy of 70% <span class="tooltiptext">In perspective: random guessing would give a 1/7 = 14% classification accuracy</span> </span>
 
 So we can classify fruits, that means that we already have the most simple CNN for weight estimation, we can have our fruit classifier guess the fruit and then take the average weight of that fruit as our weight estimation. Using this naive approach we get results...
 
