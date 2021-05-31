@@ -8,7 +8,7 @@ For the goal of this project we try to create a CNN that can estimate the weight
 
 Our dataset for this problem consists of homemade pictures of fruits. The dataset contains 7 fruit classes, `apple`, `banana`, `kiwi`, `onion`, `tomato`, `orange`, and `mandarin`, for each of these classes we have around 190 square pictures from various angles including different sceneries and images where the fruit is partially obscured. All of the images are labeled with the type of fruit in the picture and the weight of that piece of fruit, a few example of the banana class and a quick table on our dataset are given below.
 
-<span class="note">Quick detail: Originally we forgot to take square images, we cropped them after taking pictures in such a way that as little of the fruit as possible was cut from the images. Normally this would be time consuming, so we create a little program that is publicly available [here](https://github.com/KoenduBuf/tk-imgdecide).</span>
+<span class="note"><b>Quick detail: </b>Originally we forgot to take square images, we cropped them after taking pictures in such a way that as little of the fruit as possible was cut from the images. Normally this would be time consuming, so we created a little program that is publicly available [here](https://github.com/KoenduBuf/tk-imgdecide).</span>
 
 | A banana of 148 grams | A banana of 173 grams | A banana of 188 grams |
 | :-------------------: | :-------------------: | :-------------------: |
@@ -34,7 +34,7 @@ With the already small dataset, and the split into a train and test set, we have
 
 # A first test: Fruit classification + weight averages
 
-We made a CNN that classified the images... results...
+We made a CNN that classified the images just by their fruit class. This classifier generally reached a <div class="tooltip">classification accuracy of 70%<span class="tooltiptext">In perspective: random guessing would give a 1/7 = 14% classification accuracy</span></div>.
 
 So we can classify fruits, that means that we already have the most simple CNN for weight estimation, we can have our fruit classifier guess the fruit and then take the average weight of that fruit as our weight estimation. Using this naive approach we get results...
 
