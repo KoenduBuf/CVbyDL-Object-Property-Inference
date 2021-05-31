@@ -18,8 +18,8 @@ class FruitImage:
         self.typei   = on_types.index(name_parts[0])\
             if name_parts[0] in on_types else -1
         self.weight  = int(name_parts[1][:-1])
-        self.index   = int(name_parts[2])
-        self.goodness= int(name_parts[3][0])
+        self.goodness= int(name_parts[3][0])\
+            if len(name_parts) >= 4 else 0
         self.file    = from_file
         self.image   = None
 

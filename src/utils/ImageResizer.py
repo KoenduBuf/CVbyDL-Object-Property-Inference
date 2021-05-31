@@ -37,6 +37,8 @@ class Resizer:
         os.makedirs(tof, exist_ok=True)
         for img_from, filename in self.todo_images():
             img = Image.open(img_from)
+            if img.width != img.height:
+                raise Exception("Images should have aspect ratio 1:1")
             resized = img.resize(tosize, Image.ANTIALIAS)
             tofile = os.path.join(tof, filename)
             resized.save(tofile)

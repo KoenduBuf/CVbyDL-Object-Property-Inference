@@ -1,8 +1,6 @@
 <link type="text/css" rel="stylesheet" href="style.css" />
 
-# A quick introduction
-
-Hello, we are... this  is about...
+Computer vision nowadays is dominated by deep learning using Convolutional Neural Networks (CNNs), for this project we try to learn about the usage of CNNs to solve a problem in various ways
 
 # Goals, and our dataset
 
