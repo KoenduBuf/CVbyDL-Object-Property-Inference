@@ -1,4 +1,6 @@
 <link type="text/css" rel="stylesheet" href="style.css" />
+<link rel="shortcut icon" type="image/png" href="favicon.png">
+
 
 Computer vision nowadays is dominated by deep learning using Convolutional Neural Networks (CNNs), for this project we learn about the usage of CNNs to solve a problem in various ways, from basic classifiers to using multiple networks for a single instance.
 
@@ -34,7 +36,7 @@ With the already small dataset, and the split into a train and test set, we have
 
 # A first test: Fruit classification + weight averages
 
-We made a CNN that classified the images just by their fruit class. This classifier generally reached a <span class="tooltip"> classification accuracy of 70% <span class="tooltiptext">In perspective: random guessing would give a 1/7 = 14% classification accuracy</span> </span>
+We made a CNN that classified the images just by their fruit class. For this classifier we tried various network architectures, trained from scratch. The architecture that got the best performance reached a <span class="tooltip"> classification accuracy of 70% <span class="tooltiptext">In perspective: random guessing would give a 1/7 = 14% classification accuracy</span> </span>, which consisted of N layers ....
 
 So we can classify fruits, that means that we already have the most simple CNN for weight estimation, we can have our fruit classifier guess the fruit and then take the average weight of that fruit as our weight estimation. Using this naive approach we get results...
 
@@ -44,4 +46,4 @@ Next we tried to train a single CNN to classify the fruits again, but this time 
 
 # Using multiple networks?
 
-...
+Things...
