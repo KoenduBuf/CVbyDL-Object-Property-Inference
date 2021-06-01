@@ -1,6 +1,6 @@
 ---
 layout: default
-title: Title
+title: Blog Computer vision group 3
 ---
 
 
