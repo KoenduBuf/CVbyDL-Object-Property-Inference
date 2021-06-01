@@ -1,11 +1,18 @@
 <!doctype>
 <html>
     <head>
-        <link rel="icon" href="favicon.png" type="image/png">
+        <!-- Default head tags -->
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="{{ "/assets/main.css" | relative_url }}">
+        <link rel="alternate" type="application/rss+xml" title="{{ site.title | escape }}" href="{{ "/feed.xml" | relative_url }}">
+        <link rel="stylesheet" type="text/css" href="style.css">
+
+        <link rel="icon" href="images/favicon.png" type="image/png">
         <title>{{ page.title }}</title>
     </head>
     <body>
-        <link type="text/css" rel="stylesheet" href="style.css">
         {{ content }}
     </body>
 </html>
