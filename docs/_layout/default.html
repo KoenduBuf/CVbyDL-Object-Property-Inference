@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="{{ site.locale }}">
+
+  <link rel="icon" href="{{ site.baseurl }}/images/favicon.png" type="image/png">
+  <link rel="stylesheet" type="text/css" href="{{ site.baseurl }}/style.css">
+  <title>{{ page.title }}</title>
+  
+  {% include head.html %}
+
+  <body>
+    {% include page-header.html %}
+
+    <section class="main-content">
+
+      {{ content }}
+
+      {% include page-footer.html %}
+
+    </section>
+
+  </body>
+</html>
