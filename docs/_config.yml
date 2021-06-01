@@ -1,2 +1,4 @@
-theme: jekyll-theme-cayman
-baseurl: /CVbyDL-Object-Property-Inference
+baseurl:    /CVbyDL-Object-Property-Inference
+locale:     "en"
+title:      Weight inference from object images
+tagline:    A blog for the Computer Vision by Deep Learning course
