@@ -1,6 +1,6 @@
 ---
 layout: default
-title: Blog Computer vision group 3
+title: Blog CVbyDL group 3
 ---
 
 
