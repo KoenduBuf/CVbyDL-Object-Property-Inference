@@ -57,11 +57,16 @@ def validate(model, dataset, batch_size=4, show_for_classes=[]):
 
     acc = correct / total
     print(f"  VALIDATION: {acc * 100:.1f}% correctly classified")
-    accs = map(lambda tpl: tpl[0] / tpl[1], zip(correct_pred, total_pred))
+    if len(show_for_classes) == 0: return acc
+    accs = map(lambda tpl: round(tpl[0] / tpl[1] * 100, 2)\
+        if tpl[1] != 0 else "-", zip(correct_pred, total_pred))
+    class_justfify = max(map(len, show_for_classes)) + 2
     for clas, cacc in zip(show_for_classes, accs):
-        print("Accuracy on class " + clas.rjust(9)
-        + " is " + str(round(cacc * 100, 2)).rjust(4))
+        print("Accuracy on class " + clas.rjust(class_justfify)
+        + " is " + str(cacc).rjust(6))
     return acc
+
+
 
 
 def split_dataset(dataset, k_fold, fold):
