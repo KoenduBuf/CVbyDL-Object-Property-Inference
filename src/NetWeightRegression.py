@@ -1,11 +1,14 @@
 #!/usr/bin/env python3
 
+import torch
 from torch import nn
 from utils.TrainValidate import *
 from utils.WeightEstimate import *
 
-# Currently our best setup for a single network
-datasets = get_datasets("weight")
+# Get the datasets
+datasets = get_datasets("to_weight_norm")
+
+# Setup the model that we want to train
 model = nn.Sequential(
     nn.Conv2d(3, 6, 5), nn.ReLU(),   # 3 * 128 * 128 ->  6 * 124 * 124
     nn.MaxPool2d(2, 2),              #               ->  6 *  62 *  62
@@ -16,6 +19,16 @@ model = nn.Sequential(
     nn.Flatten(1),
     nn.Linear(6 * 12 * 12, 120), nn.ReLU(),
     nn.Linear(120, 84), nn.ReLU(),
-    nn.Linear(84, 1)
+    nn.Linear(84, 1),
+    nn.Flatten(0) # make (n,1) into (n) shape
 )
-train_and_eval(model, *datasets, disp_labels)
+
+train_the_thing(model, "weight_regression", *datasets, criterion=nn.L1Loss())
+
+# Access how good it is at guessing weights
+def un_normalize_weights(outputs):
+    guesses = torch.add(torch.mul(outputs.data,
+        WEIGHT_RANGE), WEIGHT_MIN)
+    return guesses
+
+evaluate_weight_inference(model, datasets[1], un_normalize_weights)

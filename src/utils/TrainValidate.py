@@ -1,11 +1,10 @@
 
 import torch
 
+
 def train_epoch(model, criterion, optimizer, data_loader):
     running_loss = 0.0
-    correct = total = 0
     for batch, data in enumerate(data_loader, 0):
-        # data is a list of [inputs, labels]
         inputs, labels = data
         # forward + backward + optimize
         optimizer.zero_grad()
@@ -13,57 +12,61 @@ def train_epoch(model, criterion, optimizer, data_loader):
         loss = criterion(outputs, labels)
         loss.backward()
         optimizer.step()
-        # get some statistics
-        _, predicted = torch.max(outputs.data, 1)
-        correct += (predicted == labels).sum().item()
-        total += labels.size(0)
         running_loss += loss.item()
-    return (running_loss / len(data_loader)), (correct / total)
+    return running_loss / len(data_loader)
 
 
-def train(model, criterion, optimizer, dataset, epochs = 10, batch_size=4):
+def train(model, criterion, optimizer, dataset, epochs=2, batch_size=4):
     train_loader = torch.utils.data.DataLoader(dataset,
         batch_size=batch_size, shuffle=True, num_workers=2)
-    total_acc = 0
     for epoch in range(epochs):
-        avgloss, acc = train_epoch(model, criterion, optimizer, train_loader)
-        print(f"  [ epoch {str(epoch + 1):2s} ] acc: {acc:.1f} loss: {avgloss:.3f}")
-        total_acc += acc
-    return total_acc / epochs
+        avgloss = train_epoch(model, criterion, optimizer, train_loader)
+        print(f"  [ epoch {str(epoch + 1):>2s} ] loss: {avgloss:.3f}")
+
+
+def get_model_results(model, dataset, output_transform=lambda o:o):
+    data_loader = torch.utils.data.DataLoader(dataset,
+        batch_size=4, shuffle=True, num_workers=2)
+    # keep track of the data we guessed
+    actual_values = torch.empty(0)
+    model_values  = torch.empty(0)
+    # not training, no need to calculate the gradients
+    with torch.no_grad():
+        for images, labels in data_loader:
+            # Run our network
+            outputs = output_transform(model(images))
+            actual_values = torch.cat( (actual_values, labels) )
+            model_values  = torch.cat( (model_values, outputs) )
+    return actual_values, model_values
 
 
 def validate_classifier(model, dataset, batch_size=4, show_for_classes=[]):
+    # Create the data loader and run the model to get some results
     data_loader = torch.utils.data.DataLoader(dataset,
         batch_size=batch_size, shuffle=True, num_workers=2)
-    correct = total = 0
+    actual, modelv = get_model_results(model, dataset,
+        lambda o: torch.max(o.data, 1)[1])
+    # Get the amount of correct
+    accuracy = (actual == modelv).sum().item() / len(actual)
+    # Get the amount of correct per label and such
     correct_pred = [ 0 ] * len(show_for_classes)
-    total_pred = [ 0 ] * len(show_for_classes)
-    # not training, no need to calculate the gradients
-    with torch.no_grad():
-        for data in data_loader:
-            # Run our network
-            images, labels = data
-            outputs = model(images)
-            _, predictions = torch.max(outputs.data, 1)
-            # Get the statistics
-            correct += (predictions == labels).sum().item()
-            total += labels.size(0)
-            # collect the correct predictions for each class
-            for label, prediction in zip(labels, predictions):
-                if len(show_for_classes) <= label: continue
-                if label == prediction:
-                    correct_pred[label] += 1
-                total_pred[label] += 1
-    acc = correct / total
-    print(f"  VALIDATION: {acc * 100:.1f}% correctly classified")
-    if len(show_for_classes) == 0: return acc
+    total_pred   = [ 0 ] * len(show_for_classes)
+    for real, pred in zip(actual.numpy(), modelv.numpy()):
+        real, pred = int(real), int(pred)
+        if len(show_for_classes) <= real: continue
+        if real == pred: correct_pred[real] += 1
+        total_pred[real] += 1
+    # finally print out whatever needs printing
+    print(f"  VALIDATION: {accuracy * 100:.1f}% correctly classified")
+    if len(show_for_classes) == 0: return accuracy
     accs = map(lambda tpl: round(tpl[0] / tpl[1] * 100, 2)\
         if tpl[1] != 0 else "-", zip(correct_pred, total_pred))
     class_justfify = max(map(len, show_for_classes)) + 2
     for clas, cacc in zip(show_for_classes, accs):
         print("Accuracy on class " + clas.rjust(class_justfify)
         + " is " + str(cacc).rjust(6))
-    return acc
+    return accuracy
+
 
 ################################################################################
 ################################################### Stuff to do cross validation

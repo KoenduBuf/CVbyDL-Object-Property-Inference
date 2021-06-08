@@ -20,12 +20,14 @@ TRANSFORMS_TRAIN = torchvision.transforms.Compose([
     torchvision.transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
 ])
 
-WEIGHT_MIN, WEIGHT_RANGE = 70, 140
+WEIGHT_MIN, WEIGHT_MAX = 68, 209
+WEIGHT_RANGE = WEIGHT_MAX - WEIGHT_MIN
 
 FI_TRANSFORMS = {
     "to_class":         lambda fi: fi.typei,
     "to_weight":        lambda fi: fi.weight,
-    "to_weight_norm":   lambda fi: (fi.weight - WEIGHT_MIN) / WEIGHT_RANGE
+    "to_weight_norm":   lambda fi: (fi.weight - WEIGHT_MIN) / WEIGHT_RANGE,
+    "from_weight_norm": lambda wi: (wi * WEIGHT_RANGE) + WEIGHT_MIN
 }
 
 
@@ -95,6 +97,7 @@ class FruitImageDataset(data.Dataset):
         return nw
 
     def summary_of_typei(self, ti):
+        if isinstance(ti, str): ti = self.types.index(ti)
         of_fruit = filter(lambda fi: fi.typei == ti, self.fruit_images)
         their_weights = list(map(lambda fi: fi.weight, of_fruit))
         total_weight = sum(their_weights)
