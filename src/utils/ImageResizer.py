@@ -2,7 +2,12 @@
 
 import os
 from PIL import Image
-from DataSet import img_file_extension
+
+def img_file_extension(filename):
+    ext = os.path.splitext(filename)[1]
+    if not isinstance(ext, str):
+        ext = ext.decode('utf-8')
+    return ext.lower() in { '.jpg', '.jpeg', '.png' }
 
 class Resizer:
     def __init__(self, folder, tofolder):
@@ -29,12 +34,15 @@ class Resizer:
             maxh = max(img.height, maxh)
         return (minw, minh, maxw, maxh)
 
-    def autoresize(self, tosize):
+    def autoresize(self, tosize, only_if_not_exists=True):
         if isinstance(tosize, int):
             tosize = (tosize, tosize)
-        tof = os.path.join(self.tofolder,
-            f"auto{tosize[0]}x{tosize[1]}")
+        fname = f"auto{tosize[0]}x{tosize[1]}"
+        tof = os.path.join(self.tofolder, fname)
+        if only_if_not_exists and os.path.isdir(tof):
+            return tof
         os.makedirs(tof, exist_ok=True)
+        print(f"Converting images into {fname}")
         for img_from, filename in self.todo_images():
             img = Image.open(img_from)
             if img.width != img.height:
@@ -49,4 +57,4 @@ if __name__ == '__main__':
     resizer = Resizer('../images', '../images')
     minw, minh, maxw, maxh = resizer.sizes_summary()
     print(f"Width: {minw}-{maxw} | Height: {minh}-{maxh}")
-    resizer.autoresize(256)
+    resizer.autoresize(256, False)

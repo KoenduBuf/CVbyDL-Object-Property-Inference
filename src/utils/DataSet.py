@@ -1,8 +1,8 @@
-#!/usr/bin/env python
 
 import os
 import torchvision
 import numpy as np
+from utils.ImageResizer import *
 from torch.utils import data
 from PIL import Image
 
@@ -20,12 +20,12 @@ TRANSFORMS_TRAIN = torchvision.transforms.Compose([
     torchvision.transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
 ])
 
+WEIGHT_MIN, WEIGHT_RANGE = 70, 140
+
 FI_TRANSFORMS = {
     "to_class":         lambda fi: fi.typei,
     "to_weight":        lambda fi: fi.weight,
-    "to_weight_norm":   lambda fi: (fi.weight - 50) / 200, # weight, 0-1
-    "weight_win":       lambda fi: int(fi.weight / int(size)),
-    "weight_grp":       lambda fi: int(fi.weight /(250/int(amnt)))
+    "to_weight_norm":   lambda fi: (fi.weight - WEIGHT_MIN) / WEIGHT_RANGE
 }
 
 
@@ -57,12 +57,7 @@ class FruitImageDataset(data.Dataset):
         for file in os.listdir(foldere):
             filename = os.fsdecode(file)
             # Check if the file is an image
-            ext = os.path.splitext(filename)[1]
-            if not isinstance(ext, str):
-                ext = ext.decode('utf-8')
-            if not ext.lower() in { '.jpg',
-                '.jpeg', '.png' }: continue
-            # Check if the file exists
+            if not img_file_extension(filename): continue
             path = os.path.join(folder, filename)
             if not os.path.isfile(path): continue
             fi = FruitImage(path, self.types)
@@ -87,8 +82,8 @@ class FruitImageDataset(data.Dataset):
         return ( imgdata, lbldata )
 
     def split_1_in_n(self, n=10, seed=0):
-        nw = FruitImageDataset(None, self.types,
-            self.img_transform, self.lbl_transform)
+        nw = FruitImageDataset(None, self.img_transform,
+            self.lbl_transform, self.types)
         new_self = [ ]
         counters = [ seed ] * len(self.types)
         for fi in self.fruit_images:
@@ -136,13 +131,15 @@ class FruitImageDataset(data.Dataset):
         plt.show()
 
 
-def get_datasets(lbl_transform="class", print_tables=True):
-    lbl_transform, *lbl_trans_args = lbl_transform.split()
-    if lbl_transform in FruitImage.property_transforms:
-        lbl_transform = FruitImage.property_transforms[lbl_transform]
-        lbl_transform = lbl_transform(*lbl_trans_args)
-    train_set = FruitImageDataset("../images/auto128x128",
-        img_transform=TRANSFORMS_TRAIN, lbl_transform=lbl_transform)
+def get_datasets(lbl_transform, image_wh=128, print_tables=True):
+    if isinstance(lbl_transform, str):
+        lbl_transform = FI_TRANSFORMS[lbl_transform]
+    # If the dataset is not there yet, then make it
+    resizer = Resizer('../images', '../images')
+    to_folder = resizer.autoresize(image_wh)
+    # Then read in the images and split them up
+    train_set = FruitImageDataset(to_folder,
+        TRANSFORMS_TRAIN, lbl_transform)
     test_set  = train_set.split_1_in_n(10)
     test_set.img_transform = TRANSFORMS_TEST
     if print_tables:
@@ -152,14 +149,14 @@ def get_datasets(lbl_transform="class", print_tables=True):
     return train_set, test_set
 
 
-
-
+################################################################################
+######################################################### Printing pretty tables
 
 def print_summary_tables(*set_name_tuples, side_to_side=2):
     side_to_side_builder = None
     for counter, (set, name) in enumerate(set_name_tuples):
         # Get the text, and paste it next to whats there
-        summ_text = dataset_summary_table(set, name)
+        summ_text = set.dataset_summary_table(name)
         if side_to_side_builder is None:
             side_to_side_builder = summ_text
         else:
@@ -173,8 +170,3 @@ def print_summary_tables(*set_name_tuples, side_to_side=2):
     # Print last one
     if side_to_side_builder is not None:
         print("\n".join(side_to_side_builder))
-
-
-if __name__=="__main__":
-    ds = FruitImageDataset("../images")
-    print_summary_tables( (ds, "") )

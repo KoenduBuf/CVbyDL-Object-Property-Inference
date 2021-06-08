@@ -6,7 +6,7 @@ from utils.WeightEstimate import *
 from utils.DataSet import *
 
 # Currently our best setup for a single network
-datasets = get_datasets("class")
+datasets = get_datasets("to_class")
 disp_labels = datasets[0].types
 model = nn.Sequential(
     nn.Conv2d(3, 6, 5), nn.ReLU(),   # 3 * 128 * 128 ->  6 * 124 * 124
