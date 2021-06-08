@@ -4,14 +4,21 @@ from utils.DataSet import *
 from utils.TrainValidate import *
 
 
-
-
-
-
-
-
-def evaluate_classifier(model, on_set, show_per_class=False):
-    validate
+# The main benchmarking function, takes a model, a set and a transform
+# The model should take in image from the set as input, and create some output
+def evaluate_weight_inference(model, dataset, model_output_to_weight):
+    dataset.lbl_transform = FruitImage.property_transforms["weight"]()
+    data_loader = torch.utils.data.DataLoader(dataset,
+        batch_size=4, shuffle=True, num_workers=2)
+    guess_and_actual = [ ]
+    # not training, no need to calculate the gradients
+    with torch.no_grad():
+        for data in data_loader:
+            # Run our network
+            images, labels = data
+            outputs = model(images)
+            print("labels", labels)
+            model_output_to_weight(outputs)
 
 
 def train_and_eval(model, train_set, test_set, disp_labels=[]):
@@ -19,11 +26,11 @@ def train_and_eval(model, train_set, test_set, disp_labels=[]):
     optimizer = torch.optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
     # cross_validate(model, criterion, optimizer, train_set)
     validate_results = [ ]
-    while True:
+    for _ in range(1):
         # Train the thing for a bit
         train(model, criterion, optimizer, train_set, epochs=5)
         # Check if we should still continue
-        validate_now = round(validate(model, test_set) * 100, 4)
+        validate_now = round(validate_classifier(model, test_set) * 100, 4)
         validate_results.append(validate_now)
         if len(validate_results) <= 5: continue
         lasts = validate_results[-4:-1]
@@ -32,4 +39,4 @@ def train_and_eval(model, train_set, test_set, disp_labels=[]):
         if validate_now < lasts_avg:
             break
     print("\n")
-    validate(model, test_set, show_for_classes=disp_labels)
+    validate_classifier(model, test_set, show_for_classes=disp_labels)

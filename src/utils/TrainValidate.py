@@ -32,7 +32,7 @@ def train(model, criterion, optimizer, dataset, epochs = 10, batch_size=4):
     return total_acc / epochs
 
 
-def validate(model, dataset, batch_size=4, show_for_classes=[]):
+def validate_classifier(model, dataset, batch_size=4, show_for_classes=[]):
     data_loader = torch.utils.data.DataLoader(dataset,
         batch_size=batch_size, shuffle=True, num_workers=2)
     correct = total = 0
@@ -54,7 +54,6 @@ def validate(model, dataset, batch_size=4, show_for_classes=[]):
                 if label == prediction:
                     correct_pred[label] += 1
                 total_pred[label] += 1
-
     acc = correct / total
     print(f"  VALIDATION: {acc * 100:.1f}% correctly classified")
     if len(show_for_classes) == 0: return acc
@@ -66,8 +65,8 @@ def validate(model, dataset, batch_size=4, show_for_classes=[]):
         + " is " + str(cacc).rjust(6))
     return acc
 
-
-
+################################################################################
+################################################### Stuff to do cross validation
 
 def split_dataset(dataset, k_fold, fold):
     total_size  = len(dataset)
@@ -100,7 +99,7 @@ def cross_validate(model, criterion, optimizer, dataset, k_fold=5, batch_size=5)
         # Train the model a bit, then validate to get our performance
         train_acc = train(model, criterion, optimizer, train_set, epochs=6)
         train_score[fold] = train_acc
-        val_acc = validate(model, val_set)
+        val_acc = validate_classifier(model, val_set)
         val_score[fold] = val_acc
 
     return train_score, val_score
