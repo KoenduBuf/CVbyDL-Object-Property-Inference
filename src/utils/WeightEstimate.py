@@ -15,12 +15,9 @@ def evaluate_weight_inference(model, dataset, model_output_to_weight):
     actual_weights, guessed_weights = actual_weights.cpu(), guessed_weights.cpu()
     # Calculate some stats about the performance
     diffs_w  = torch.sub(actual_weights, guessed_weights).numpy()
-    avg_off  = np.sum(np.abs(diffs_w)) / len(diffs_w)
     pc10, pc50, pc90 = np.percentile(np.abs(diffs_w), [ 10, 50, 90 ])
-    if avg_off == pc50:
-        print("I knew it pc50 == avg")
     # Print those, or graph them, idk
-    print(f"d[ {round(pc10,1)} | {round(avg_off,1)} | {round(pc90,1)} ]")
+    print(f"d[ {round(pc10,1)} | {round(pc50,1)} | {round(pc90,1)} ]")
     import matplotlib.pyplot as plt
     from matplotlib.ticker import PercentFormatter
     plot_bins = [ (-95 + 10*i) for i in range(20) ]

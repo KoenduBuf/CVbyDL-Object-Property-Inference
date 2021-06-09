@@ -6,10 +6,10 @@ from utils.TrainValidate import *
 from utils.WeightEstimate import *
 from networks import *
 
-device       = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 # Get the datasets, and setup those windows
 window_size  = 2
+device       = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 fi_to_window = lambda fi: int((fi.weight - WEIGHT_MIN) / window_size)
 datasets     = get_datasets(fi_to_window, 224, device)
 disp_labels  = [ f"around {i*window_size + WEIGHT_MIN + (window_size/2)}g"

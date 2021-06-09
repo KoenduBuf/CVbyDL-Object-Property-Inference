@@ -66,7 +66,7 @@ class FruitImageDataset(data.Dataset):
             if fi.goodness > 2: continue    # Dont use bad quality images
             self.fruit_images.append(fi)
         # Load all images, normalize and maybe on GPU even
-        print(f"Loading images ({len(self.fruit_images)}, on {self.img_to_device})")
+        print(f"Loading {len(self.fruit_images)} images, to run on {self.img_to_device}")
         for fi in self.fruit_images:
             imgdata = Image.open(fi.file)
             if self.img_transform_base:
@@ -81,7 +81,6 @@ class FruitImageDataset(data.Dataset):
     @lbl_transform.setter
     def lbl_transform(self, value):
         self._lbl_transform = value
-        print("Recomputing image labels")
         for fi in self.fruit_images:
             lbldata = torch.tensor(self._lbl_transform(fi))
             fi.lbl = lbldata.to(self.img_to_device)
