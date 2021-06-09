@@ -6,7 +6,7 @@ from utils.TrainValidate import *
 from utils.WeightEstimate import *
 
 # Get the datasets, and setup those windows
-window_size  = 1
+window_size  = 5
 fi_to_window = lambda fi: int((fi.weight - WEIGHT_MIN) / window_size)
 datasets     = get_datasets(fi_to_window)
 disp_labels  = [ f"around {i*window_size + WEIGHT_MIN + (window_size/2)}g"
@@ -28,7 +28,7 @@ model = nn.Sequential(
 )
 
 # Train the model, or get from cache
-train_the_thing(model, f"weight_window_{len(disp_labels)}",
+train_the_thing(model, f"weight_window_{window_size}",
     *datasets, disp_labels, nn.CrossEntropyLoss())
 
 # Access how good it is at guessing weights

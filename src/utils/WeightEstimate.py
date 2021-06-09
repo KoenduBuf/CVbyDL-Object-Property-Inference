@@ -8,7 +8,7 @@ from utils.TrainValidate import *
 # The main benchmarking function, takes a model, a set and a transform
 # The model should take in image from the set as input, and create some output
 def evaluate_weight_inference(model, dataset, model_output_to_weight):
-    dataset.lbl_transform = FI_TRANSFORMS["to_weight"]
+    dataset.lbl_transform = lambda fi: fi.weight
     data_loader = torch.utils.data.DataLoader(dataset,
         batch_size=4, shuffle=True, num_workers=2)
     print("\nEVALUATING WEIGHT INFERENCE")
@@ -17,9 +17,9 @@ def evaluate_weight_inference(model, dataset, model_output_to_weight):
     # Calculate some stats about the performance
     diffs_w  = torch.sub(actual_weights, guessed_weights).numpy()
     avg_off  = np.sum(np.abs(diffs_w)) / len(diffs_w)
-    variance = np.var(diffs_w)
+    pc10, pc90 = np.percentile(diffs_w, [ 10, 90 ])
     # Print those, or graph them, idk
-    print(f"Off: {avg_off}, variance: {variance}")
+    print(f"d[ {round(pc10,1)} | {round(avg_off,1)} | {round(pc90,1)} ]")
     import matplotlib.pyplot as plt
     from matplotlib.ticker import PercentFormatter
     plt.hist(diffs_w, bins=20, weights=np.ones(len(diffs_w)) / len(diffs_w))
@@ -31,9 +31,10 @@ def evaluate_weight_inference(model, dataset, model_output_to_weight):
 
 
 def train_the_thing(model, name, train_set, test_set,
-    disp_labels=[], criterion=torch.nn.CrossEntropyLoss()):
+    disp_labels=[], criterion=torch.nn.CrossEntropyLoss(),
+    epochs=150):
     # First check if we already trained this model
-    model_cache = f"./models/{name}.model"
+    model_cache = f"./models/{name}_e{epochs}.model"
     if os.path.isfile(model_cache):
         print("Using a cached, trained model")
         model.load_state_dict(torch.load(model_cache))
@@ -41,7 +42,8 @@ def train_the_thing(model, name, train_set, test_set,
         return
 
     optimizer = torch.optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
-    train(model, criterion, optimizer, train_set, epochs = 150)
+    train(model, criterion, optimizer, train_set, epochs = epochs)
+    torch.save(model.state_dict(), model_cache)
 
     # validate_results = [ ]
     # for _ in range(5):
@@ -56,7 +58,7 @@ def train_the_thing(model, name, train_set, test_set,
         # print(f"{validate_now}% < {lasts_avg}% ??")
         # if validate_now < lasts_avg:
         #     break
-    print("\n")
-    validate_classifier(model, test_set, show_for_classes=disp_labels)
 
-    torch.save(model.state_dict(), model_cache)
+    if isinstance(criterion, torch.nn.CrossEntropyLoss):
+        validate_classifier(model, test_set,
+            show_for_classes=disp_labels)

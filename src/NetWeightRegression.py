@@ -6,7 +6,7 @@ from utils.TrainValidate import *
 from utils.WeightEstimate import *
 
 # Get the datasets
-datasets = get_datasets("to_weight_norm")
+datasets = get_datasets(lambda fi: (fi.weight - WEIGHT_MIN) / WEIGHT_RANGE)
 
 # Setup the model that we want to train
 model = nn.Sequential(

@@ -7,28 +7,23 @@ from torch.utils import data
 from PIL import Image
 
 
-TRANSFORMS_TEST  = torchvision.transforms.Compose([
+(0.5, 0.5, 0.5), (0.5, 0.5, 0.5)
+
+TRANSFORMS_TEST  = lambda norm_mean, norm_std: torchvision.transforms.Compose([
     torchvision.transforms.ToTensor(),
-    torchvision.transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+    torchvision.transforms.Normalize(norm_mean, norm_std)
 ])
 
-TRANSFORMS_TRAIN = torchvision.transforms.Compose([
+TRANSFORMS_TRAIN = lambda norm_mean, norm_std: torchvision.transforms.Compose([
     torchvision.transforms.RandomHorizontalFlip(),
     torchvision.transforms.RandomVerticalFlip(),
     torchvision.transforms.ToTensor(),
     torchvision.transforms.RandomErasing(),
-    torchvision.transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+    torchvision.transforms.Normalize(norm_mean, norm_std)
 ])
 
 WEIGHT_MIN, WEIGHT_MAX = 68, 209
 WEIGHT_RANGE = WEIGHT_MAX - WEIGHT_MIN
-
-FI_TRANSFORMS = {
-    "to_class":         lambda fi: fi.typei,
-    "to_weight":        lambda fi: fi.weight,
-    "to_weight_norm":   lambda fi: (fi.weight - WEIGHT_MIN) / WEIGHT_RANGE,
-    "from_weight_norm": lambda wi: (wi * WEIGHT_RANGE) + WEIGHT_MIN
-}
 
 
 class FruitImage:
@@ -134,17 +129,17 @@ class FruitImageDataset(data.Dataset):
         plt.show()
 
 
-def get_datasets(lbl_transform, image_wh=128, print_tables=True):
-    if isinstance(lbl_transform, str):
-        lbl_transform = FI_TRANSFORMS[lbl_transform]
+# Get a test and a dataset, resize images if needed. Norm from ResNet
+def get_datasets(lbl_transform, image_wh=128, print_tables=True,
+    norm_mean=(0.485, 0.456, 0.406), norm_std=(0.229, 0.224, 0.225)):
     # If the dataset is not there yet, then make it
     resizer = Resizer('../images', '../images')
     to_folder = resizer.autoresize(image_wh)
     # Then read in the images and split them up
     train_set = FruitImageDataset(to_folder,
-        TRANSFORMS_TRAIN, lbl_transform)
+        TRANSFORMS_TRAIN(norm_mean, norm_std), lbl_transform)
     test_set  = train_set.split_1_in_n(10)
-    test_set.img_transform = TRANSFORMS_TEST
+    test_set.img_transform = TRANSFORMS_TEST(norm_mean, norm_std)
     if print_tables:
         print_summary_tables(
             (train_set, "TRAIN"),
