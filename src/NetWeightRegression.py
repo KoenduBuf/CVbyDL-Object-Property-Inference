@@ -7,7 +7,7 @@ from utils.WeightEstimate import *
 from networks import *
 
 # Get the datasets
-device       = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+device   = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 datasets = get_datasets(lambda fi: (fi.weight - WEIGHT_MIN) / WEIGHT_RANGE, 224, device)
 
 # Setup the model that we want to train
@@ -25,13 +25,13 @@ datasets = get_datasets(lambda fi: (fi.weight - WEIGHT_MIN) / WEIGHT_RANGE, 224,
 #     nn.Flatten(0) # make (n,1) into (n) shape
 # )
 
-model       = get_network("ResNet", 1, device, flatten=True)
+model = get_network("ResNet", 1, device, flatten=True)
 train_the_thing(model, "weight_regression", *datasets, criterion=nn.L1Loss())
 
 # Access how good it is at guessing weights
 def un_normalize_weights(outputs):
-    guesses = torch.add(torch.mul(outputs.data,
-        WEIGHT_RANGE), WEIGHT_MIN)
+    guesses = torch.mul(outputs.data, WEIGHT_RANGE)
+    guesses = torch.add(guesses, WEIGHT_MIN)
     return guesses
 
 evaluate_weight_inference(model, datasets[1], un_normalize_weights)
