@@ -1,5 +1,6 @@
 
 import os
+import torch
 import torchvision
 import numpy as np
 from utils.ImageResizer import *
@@ -7,20 +8,16 @@ from torch.utils import data
 from PIL import Image
 
 
-(0.5, 0.5, 0.5), (0.5, 0.5, 0.5)
-
-TRANSFORMS_TEST  = lambda norm_mean, norm_std: torchvision.transforms.Compose([
+TRANSFORMS_BASE = lambda norm_mean, norm_std: torchvision.transforms.Compose([
     torchvision.transforms.ToTensor(),
     torchvision.transforms.Normalize(norm_mean, norm_std)
 ])
 
-TRANSFORMS_TRAIN = lambda norm_mean, norm_std: torchvision.transforms.Compose([
+TRANSFORMS_AUG  = torch.nn.Sequential(
     torchvision.transforms.RandomHorizontalFlip(),
     torchvision.transforms.RandomVerticalFlip(),
-    torchvision.transforms.ToTensor(),
-    torchvision.transforms.RandomErasing(),
-    torchvision.transforms.Normalize(norm_mean, norm_std)
-])
+    torchvision.transforms.RandomErasing()
+)
 
 WEIGHT_MIN, WEIGHT_MAX = 68, 209
 WEIGHT_RANGE = WEIGHT_MAX - WEIGHT_MIN
@@ -36,19 +33,25 @@ class FruitImage:
         self.goodness= int(name_parts[3][0])\
             if len(name_parts) >= 4 else 0
         self.file    = from_file
+        # Caching things for da speed
         self.image   = None
+        self.lbl     = None
 
 
 class FruitImageDataset(data.Dataset):
     DEFAULT_TYPES = ("apple", "banana", "kiwi",
         "onion", "tomato", "orange", "mandarin")
 
-    def __init__(self, folder, img_transform=None,
-        lbl_transform=None, types=DEFAULT_TYPES):
-        self.types = types
-        self.fruit_images = [ ]
-        self.img_transform = img_transform
-        self.lbl_transform = lbl_transform
+    def __init__(self, folder, img_transform_base=None,
+        img_transform_aug=None, img_to_device="cpu",
+        lbl_transform=lambda fi: fi.weight, types=DEFAULT_TYPES):
+        self.types              = types
+        self.fruit_images       = [ ]
+        self.img_to_device      = img_to_device
+        self.img_transform_base = img_transform_base
+        self.img_transform_aug  = img_transform_aug
+        self.lbl_transform      = lbl_transform
+        # Check which files to include in this set
         if folder is None: return
         foldere = os.fsencode(folder)
         for file in os.listdir(foldere):
@@ -62,24 +65,40 @@ class FruitImageDataset(data.Dataset):
             if fi.typei == -1: continue     # Dont use other types of fruit
             if fi.goodness > 2: continue    # Dont use bad quality images
             self.fruit_images.append(fi)
+        # Load all images, normalize and maybe on GPU even
+        print(f"Loading images ({len(self.fruit_images)}, on {self.img_to_device})")
+        for fi in self.fruit_images:
+            imgdata = Image.open(fi.file)
+            if self.img_transform_base:
+                imgdata = self.img_transform_base(imgdata)
+            fi.image = imgdata.to(self.img_to_device)
+        self.lbl_transform      = lbl_transform # recompute
+
+    @property
+    def lbl_transform(self):
+        return self._lbl_transform
+
+    @lbl_transform.setter
+    def lbl_transform(self, value):
+        self._lbl_transform = value
+        print("Recomputing image labels")
+        for fi in self.fruit_images:
+            lbldata = torch.tensor(self._lbl_transform(fi))
+            fi.lbl = lbldata.to(self.img_to_device)
 
     def __len__(self):
         return len(self.fruit_images)
 
     def __getitem__(self, index):
         fi = self.fruit_images[index]
-        if fi.image is not None:
-            return ( fi.image, fi.typei )
-        imgdata = Image.open(fi.file)
-        if self.img_transform:
-            imgdata = self.img_transform(imgdata)
-        lbldata = fi
-        if self.lbl_transform:
-            lbldata = self.lbl_transform(lbldata)
-        return ( imgdata, lbldata )
+        imgdata = fi.image
+        if self.img_transform_aug:
+            imgdata = self.img_transform_aug(imgdata)
+        return ( imgdata, fi.lbl )
 
     def split_1_in_n(self, n=10, seed=0):
-        nw = FruitImageDataset(None, self.img_transform,
+        nw = FruitImageDataset(None, self.img_transform_base,
+            self.img_transform_aug, self.img_to_device,
             self.lbl_transform, self.types)
         new_self = [ ]
         counters = [ seed ] * len(self.types)
@@ -130,16 +149,17 @@ class FruitImageDataset(data.Dataset):
 
 
 # Get a test and a dataset, resize images if needed. Norm from ResNet
-def get_datasets(lbl_transform, image_wh=128, print_tables=True,
+def get_datasets(lbl_transform, image_wh=128, device="cpu", print_tables=True,
     norm_mean=(0.485, 0.456, 0.406), norm_std=(0.229, 0.224, 0.225)):
     # If the dataset is not there yet, then make it
     resizer = Resizer('../images', '../images')
     to_folder = resizer.autoresize(image_wh)
-    # Then read in the images and split them up
-    train_set = FruitImageDataset(to_folder,
-        TRANSFORMS_TRAIN(norm_mean, norm_std), lbl_transform)
+    # Then read in the images and split them up, train has aug, test doesn't
+    base_transform = TRANSFORMS_BASE(norm_mean, norm_std)
+    train_set = FruitImageDataset(to_folder, base_transform,
+        TRANSFORMS_AUG, device, lbl_transform)
     test_set  = train_set.split_1_in_n(10)
-    test_set.img_transform = TRANSFORMS_TEST(norm_mean, norm_std)
+    test_set.img_transform_aug = None
     if print_tables:
         print_summary_tables(
             (train_set, "TRAIN"),

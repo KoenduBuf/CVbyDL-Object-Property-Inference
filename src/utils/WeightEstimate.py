@@ -9,20 +9,23 @@ from utils.TrainValidate import *
 # The model should take in image from the set as input, and create some output
 def evaluate_weight_inference(model, dataset, model_output_to_weight):
     dataset.lbl_transform = lambda fi: fi.weight
-    data_loader = torch.utils.data.DataLoader(dataset,
-        batch_size=4, shuffle=True, num_workers=2)
     print("\nEVALUATING WEIGHT INFERENCE")
     actual_weights, guessed_weights = get_model_results(
         model, dataset, model_output_to_weight)
+    actual_weights, guessed_weights = actual_weights.cpu(), guessed_weights.cpu()
     # Calculate some stats about the performance
     diffs_w  = torch.sub(actual_weights, guessed_weights).numpy()
     avg_off  = np.sum(np.abs(diffs_w)) / len(diffs_w)
-    pc10, pc90 = np.percentile(diffs_w, [ 10, 90 ])
+    pc10, pc50, pc90 = np.percentile(np.abs(diffs_w), [ 10, 50, 90 ])
+    if avg_off == pc50:
+        print("I knew it pc50 == avg")
     # Print those, or graph them, idk
     print(f"d[ {round(pc10,1)} | {round(avg_off,1)} | {round(pc90,1)} ]")
     import matplotlib.pyplot as plt
     from matplotlib.ticker import PercentFormatter
-    plt.hist(diffs_w, bins=20, weights=np.ones(len(diffs_w)) / len(diffs_w))
+    plot_bins = [ (-95 + 10*i) for i in range(20) ]
+    plt.hist(diffs_w, bins=plot_bins, edgecolor='black', linewidth=1,
+        weights=np.ones(len(diffs_w)) / len(diffs_w))
     plt.gca().yaxis.set_major_formatter(PercentFormatter(1))
     plt.title("Grams off from actual weight")
     plt.show()
@@ -32,7 +35,7 @@ def evaluate_weight_inference(model, dataset, model_output_to_weight):
 
 def train_the_thing(model, name, train_set, test_set,
     disp_labels=[], criterion=torch.nn.CrossEntropyLoss(),
-    epochs=150):
+    epochs=20):
     # First check if we already trained this model
     model_cache = f"./models/{name}_e{epochs}.model"
     if os.path.isfile(model_cache):

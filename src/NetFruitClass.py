@@ -8,16 +8,15 @@ from utils.DataSet import *
 from networks import *
 
 
-# Get the datasets, classes and average weights
-datasets    = get_datasets(lambda fi: fi.typei, 224)
+# Get classes and average weights
+device      = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+datasets    = get_datasets(lambda fi: fi.typei, 224, device)
 classes     = datasets[0].types
 class_dataf = lambda c: datasets[0].summary_of_typei(c)
 class_avg_w = [ class_dataf(c)['avg_weight'] for c in classes ]
 
 # Setup the model that we want to train
-model = get_network("ResNet", len(classes))
-
-# Train the model, or get from cache
+model       = get_network("ResNet", len(classes), device)
 train_the_thing(model, "fruit_classifier_resnet",
     *datasets, classes, nn.CrossEntropyLoss())
 

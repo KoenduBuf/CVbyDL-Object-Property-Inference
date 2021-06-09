@@ -4,8 +4,7 @@ import torch
 
 def train_epoch(model, criterion, optimizer, data_loader):
     running_loss = 0.0
-    for batch, data in enumerate(data_loader, 0):
-        inputs, labels = data
+    for inputs, labels in data_loader:
         # forward + backward + optimize
         optimizer.zero_grad()
         outputs = model(inputs)
@@ -18,7 +17,7 @@ def train_epoch(model, criterion, optimizer, data_loader):
 
 def train(model, criterion, optimizer, dataset, epochs=2, batch_size=4):
     train_loader = torch.utils.data.DataLoader(dataset,
-        batch_size=batch_size, shuffle=True, num_workers=2)
+        batch_size=batch_size, shuffle=True, num_workers=0)
     for epoch in range(epochs):
         avgloss = train_epoch(model, criterion, optimizer, train_loader)
         print(f"  [ epoch {str(epoch + 1):>2s} ] loss: {avgloss:.3f}")
@@ -26,7 +25,7 @@ def train(model, criterion, optimizer, dataset, epochs=2, batch_size=4):
 
 def get_model_results(model, dataset, output_transform=lambda o:o):
     data_loader = torch.utils.data.DataLoader(dataset,
-        batch_size=4, shuffle=True, num_workers=2)
+        batch_size=4, shuffle=True, num_workers=0)
     # keep track of the data we guessed
     actual_values = torch.empty(0)
     model_values  = torch.empty(0)
@@ -35,6 +34,7 @@ def get_model_results(model, dataset, output_transform=lambda o:o):
         for images, labels in data_loader:
             # Run our network
             outputs = output_transform(model(images))
+            outputs, labels = outputs.cpu(), labels.cpu()
             actual_values = torch.cat( (actual_values, labels) )
             model_values  = torch.cat( (model_values, outputs) )
     return actual_values, model_values
@@ -42,8 +42,6 @@ def get_model_results(model, dataset, output_transform=lambda o:o):
 
 def validate_classifier(model, dataset, batch_size=4, show_for_classes=[]):
     # Create the data loader and run the model to get some results
-    data_loader = torch.utils.data.DataLoader(dataset,
-        batch_size=batch_size, shuffle=True, num_workers=2)
     actual, modelv = get_model_results(model, dataset,
         lambda o: torch.max(o.data, 1)[1])
     # Get the amount of correct
