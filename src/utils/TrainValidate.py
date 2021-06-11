@@ -86,7 +86,7 @@ def cross_validate(model, criterion, optimizer, dataset, k_fold=5, batch_size=4)
             best_ever_loss = losses[fold]
 
     model.load_state_dict(best_ever_model_state)
-    return train_score, val_score
+    return losses
 
 ################################################################################
 ############################################### Stuff to easily get some results
