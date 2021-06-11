@@ -49,9 +49,7 @@ class FruitImageDataset(data.Dataset):
         self.types              = types
         self.fruit_images       = [ ]
         self.img_to_device      = img_to_device
-        self.img_transform_base = img_transform_base
         self.img_transform_aug  = img_transform_aug
-        self.lbl_transform      = lbl_transform
         # Check which files to include in this set
         if folder is None: return
         foldere = os.fsencode(folder)
@@ -67,14 +65,10 @@ class FruitImageDataset(data.Dataset):
             if fi.goodness > 2: continue    # Dont use bad quality images
             self.fruit_images.append(fi)
         # Load all images, normalize and maybe on GPU even
-        print(f"Loading {len(self.fruit_images)} images, to run on {self.img_to_device}")
-        for fi in self.fruit_images:
-            imgdata = Image.open(fi.file)
-            if self.img_transform_base:
-                imgdata = self.img_transform_base(imgdata)
-            fi.image = imgdata.to(self.img_to_device)
         random.shuffle(self.fruit_images)
-        self.lbl_transform      = lbl_transform # recompute
+        self.lbl_transform = lbl_transform # do these last, to compute
+        self.img_transform_base = img_transform_base
+        self.to_device()
 
     @property
     def lbl_transform(self):
@@ -84,8 +78,25 @@ class FruitImageDataset(data.Dataset):
     def lbl_transform(self, value):
         self._lbl_transform = value
         for fi in self.fruit_images:
-            lbldata = torch.tensor(self._lbl_transform(fi))
-            fi.lbl = lbldata.to(self.img_to_device)
+            fi.lbl = torch.tensor(self._lbl_transform(fi))
+
+    @property
+    def img_transform_base(self):
+        return self._img_transform_base
+
+    @img_transform_base.setter
+    def img_transform_base(self, value):
+        self._img_transform_base = value
+        for fi in self.fruit_images:
+            imgdata = Image.open(fi.file)
+            fi.image = imgdata if self._img_transform_base\
+            is None else self.img_transform_base(imgdata)
+
+    def to_device(self, device=None):
+        if device is None: device = self.img_to_device
+        for fi in self.fruit_images:
+            fi.image = fi.image.to(device)
+            fi.lbl   = fi.lbl.to(device)
 
     def __len__(self):
         return len(self.fruit_images)

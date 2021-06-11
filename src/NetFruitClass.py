@@ -8,17 +8,18 @@ from utils.DataSet import *
 from networks import *
 
 
-# Get classes and average weights
+# Get average weights and datasets etc
 device      = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-datasets    = get_datasets(lambda fi: fi.typei, 224, device)
-classes     = datasets[0].types
-class_dataf = lambda c: datasets[0].summary_of_typei(c)
-class_avg_w = [ class_dataf(c)['avg_weight'] for c in classes ]
+train, test = get_datasets(lambda fi: fi.typei, 224, device)
+class_dataf = lambda c: train.summary_of_typei(c)
+class_avg_w = [ class_dataf(c)['avg_weight'] for c in train.types ]
+
 
 # Setup the model that we want to train
-model       = get_network("ResNet", len(classes), device)
+test.to_device("cpu")
+model       = get_network("ResNet", len(train.types), device)
 train_the_thing(model, "fruit_classifier_resnet",
-    *datasets, classes, nn.CrossEntropyLoss())
+    train, test, train.types, nn.CrossEntropyLoss())
 
 # Access how good it is at guessing weights
 def out_to_weights(outputs):
@@ -27,4 +28,6 @@ def out_to_weights(outputs):
     weights = torch.tensor(list(weights))
     return weights
 
-evaluate_weight_inference(model, datasets[1], out_to_weights)
+test.to_device()
+train.to_device("cpu")
+evaluate_weight_inference(model, test, out_to_weights)

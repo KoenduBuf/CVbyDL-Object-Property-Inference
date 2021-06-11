@@ -41,7 +41,7 @@ def train_the_thing(model, name, train_set, test_set,
         return
 
     optimizer = torch.optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
-    cross_validate(model, criterion, optimizer, train_set, batch_size=16)
+    cross_validate(model, criterion, optimizer, train_set, batch_size=8)
     os.makedirs(model_cache, exist_ok=True)
     torch.save(model.state_dict(), model_cache)
 
