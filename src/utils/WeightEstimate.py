@@ -44,7 +44,7 @@ def train_the_thing(model, name, train_set, test_set,
 
     train_set.to_device()
     optimizer = torch.optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
-    cross_validate(model, criterion, optimizer, train_set, batch_size=8)
+    cross_validate(model, criterion, optimizer, train_set, batch_size=6)
     train_set.to_device("cpu")
 
     os.makedirs(model_cache, exist_ok=True)

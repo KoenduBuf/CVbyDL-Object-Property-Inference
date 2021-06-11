@@ -1,5 +1,6 @@
 
 import torch
+from copy import deepcopy
 
 ################################################################################
 ##################################################### Stuff to do basic training
@@ -40,7 +41,7 @@ def train_until(model, criterion, optimizer, train_set,
         print(f"  Epoch {str(epoch):>2s}, val_loss: {str(round(val_loss,3)):<6s}")
         # Then keep track of our best performance
         if val_loss < best_ever_loss:
-            best_ever_model_state = model.state_dict()
+            best_ever_model_state = deepcopy(model.state_dict())
             best_ever_loss = val_loss
         prev_losses[epoch % patience] = val_loss
         # If it has been a while since our best, return
@@ -70,7 +71,7 @@ def split_dataset(dataset, k_fold, fold):
 
 def cross_validate(model, criterion, optimizer, dataset, k_fold=5, batch_size=4):
     best_ever_loss = 1000; best_ever_model_state = None
-    initial_model_state = model.state_dict()
+    initial_model_state = deepcopy(model.state_dict())
     losses = [ -1 ] * k_fold
 
     for fold in range(k_fold):
@@ -82,7 +83,7 @@ def cross_validate(model, criterion, optimizer, dataset, k_fold=5, batch_size=4)
         losses[fold] = train_until(model, criterion, optimizer,
             train_set, val_set, batch_size)
         if losses[fold] < best_ever_loss:
-            best_ever_model_state = model.state_dict()
+            best_ever_model_state = deepcopy(model.state_dict())
             best_ever_loss = losses[fold]
 
     model.load_state_dict(best_ever_model_state)
