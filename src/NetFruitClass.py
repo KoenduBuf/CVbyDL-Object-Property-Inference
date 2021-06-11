@@ -16,7 +16,6 @@ class_avg_w = [ class_dataf(c)['avg_weight'] for c in train.types ]
 
 
 # Setup the model that we want to train
-test.to_device("cpu")
 model       = get_network("ResNet", len(train.types), device)
 train_the_thing(model, "fruit_classifier_resnet",
     train, test, train.types, nn.CrossEntropyLoss())
@@ -28,6 +27,4 @@ def out_to_weights(outputs):
     weights = torch.tensor(list(weights))
     return weights
 
-test.to_device()
-train.to_device("cpu")
 evaluate_weight_inference(model, test, out_to_weights)

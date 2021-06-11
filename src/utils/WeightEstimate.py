@@ -8,10 +8,12 @@ from utils.TrainValidate import *
 # The main benchmarking function, takes a model, a set and a transform
 # The model should take in image from the set as input, and create some output
 def evaluate_weight_inference(model, dataset, model_output_to_weight):
+    dataset.to_device()
     dataset.lbl_transform = lambda fi: fi.weight
     print("\nEVALUATING WEIGHT INFERENCE")
     actual_weights, guessed_weights = get_model_results(
         model, dataset, model_output_to_weight)
+    dataset.to_device("cpu")
     actual_weights, guessed_weights = actual_weights.cpu(), guessed_weights.cpu()
     # Calculate some stats about the performance
     diffs_w  = torch.sub(actual_weights, guessed_weights).numpy()
@@ -40,10 +42,15 @@ def train_the_thing(model, name, train_set, test_set,
         model.eval()
         return
 
+    train_set.to_device()
     optimizer = torch.optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
     cross_validate(model, criterion, optimizer, train_set, batch_size=8)
+    train_set.to_device("cpu")
+
     os.makedirs(model_cache, exist_ok=True)
     torch.save(model.state_dict(), model_cache)
 
     if isinstance(criterion, torch.nn.CrossEntropyLoss):
+        train_set.to_device()
         validate_classifier(model, test_set, show_for_classes=disp_labels)
+        train_set.to_device("cpu")

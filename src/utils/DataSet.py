@@ -68,7 +68,6 @@ class FruitImageDataset(data.Dataset):
         random.shuffle(self.fruit_images)
         self.lbl_transform = lbl_transform # do these last, to compute
         self.img_transform_base = img_transform_base
-        self.to_device()
 
     @property
     def lbl_transform(self):
