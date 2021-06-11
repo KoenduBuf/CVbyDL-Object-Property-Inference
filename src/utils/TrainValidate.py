@@ -37,7 +37,7 @@ def train_until(model, criterion, optimizer, train_set,
             epochs=1, batch_size=batch_size)
         _, _, val_loss = get_model_results(model,
             test_set, criterion_for_loss=criterion)
-        print(f"  Epoch {epoch:>2s}, val_loss: {round(val_loss,3)}")
+        print(f"  Epoch {str(epoch):>2s}, val_loss: {str(round(val_loss,3)):<6s}")
         # Then keep track of our best performance
         if val_loss < best_ever_loss:
             best_ever_model_state = model.state_dict()
