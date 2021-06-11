@@ -41,23 +41,9 @@ def train_the_thing(model, name, train_set, test_set,
         return
 
     optimizer = torch.optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
-    cross_validate(model, criterion, optimizer, train_set)
+    cross_validate(model, criterion, optimizer, train_set, batch_size=16)
+    os.makedirs(model_cache, exist_ok=True)
     torch.save(model.state_dict(), model_cache)
 
-    # validate_results = [ ]
-    # for _ in range(5):
-        # Train the thing for a bit
-        # train(model, criterion, optimizer, train_set)
-        # Check if we should still continue
-        # validate_now = round(validate_classifier(model, test_set) * 100, 4)
-        # validate_results.append(validate_now)
-        # if len(validate_results) <= 5: continue
-        # lasts = validate_results[-4:-1]
-        # lasts_avg = sum(lasts) / len(lasts)
-        # print(f"{validate_now}% < {lasts_avg}% ??")
-        # if validate_now < lasts_avg:
-        #     break
-
     if isinstance(criterion, torch.nn.CrossEntropyLoss):
-        validate_classifier(model, test_set,
-            show_for_classes=disp_labels)
+        validate_classifier(model, test_set, show_for_classes=disp_labels)

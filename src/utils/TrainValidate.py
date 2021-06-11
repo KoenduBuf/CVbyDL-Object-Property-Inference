@@ -28,7 +28,7 @@ def train(model, criterion, optimizer, dataset, epochs=2, batch_size=4):
     return avgloss / epochs
 
 def train_until(model, criterion, optimizer, train_set,
-    test_set, batch_size=4, patience=3):
+    test_set, batch_size=4, patience=4):
     best_ever_loss = 1000; best_ever_model_state = None
     prev_losses = [ best_ever_loss ] * patience; at = 0
     for epoch in range(0, 1000):
@@ -45,7 +45,7 @@ def train_until(model, criterion, optimizer, train_set,
         prev_losses[epoch % patience] = val_loss
         # If it has been a while since our best, return
         if not best_ever_loss in prev_losses:
-            print(f"  Trained! Best was {best_ever_loss}")
+            print(f"  Yeey, trained it!")
             model.load_state_dict(best_ever_model_state)
             return best_ever_loss
 
