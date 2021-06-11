@@ -6,6 +6,7 @@ import numpy as np
 from utils.ImageResizer import *
 from torch.utils import data
 from PIL import Image
+import random
 
 
 TRANSFORMS_BASE = lambda norm_mean, norm_std: torchvision.transforms.Compose([
@@ -72,6 +73,7 @@ class FruitImageDataset(data.Dataset):
             if self.img_transform_base:
                 imgdata = self.img_transform_base(imgdata)
             fi.image = imgdata.to(self.img_to_device)
+        random.shuffle(self.fruit_images)
         self.lbl_transform      = lbl_transform # recompute
 
     @property

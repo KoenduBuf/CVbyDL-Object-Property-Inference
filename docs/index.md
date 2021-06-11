@@ -34,18 +34,20 @@ Our dataset for this problem consists of homemade pictures of fruits. The datase
 
 Training our ML models on the whole dataset would be unfair since we can then not test its performance on unseen data. For this reason we divided our dataset into a train set and a test set, where the train set contains 90% of the dataset. The models are only allowed to train on the train set, and evaluated on the unseen test set.
 
-With the already small dataset, and the split into a train and test set, we have very little data left in the train set for the network to learn from. Our solution to this problem was data augmentation. Specifically any training instance is first turned into 4 separate instances by applying a vertical flip of the image, and then a horizontal flip, both with 50% chance. This strategy already gives a significant amount more unique training instances. Finally we randomly remove a section of the image again with a 50% chance, this gives us more than enough instances to train on, this approach was based on [this paper](https://arxiv.org/abs/1708.04896).
+With the already small dataset, and the split into a train and test set, we have very little data left in the train set for the network to learn from. Our solution to this problem was data augmentation. Specifically any training instance is first turned into 4 separate instances by applying a vertical flip of the image, and then a horizontal flip, both with 50% chance. This strategy already gives a significant amount more unique training instances. Finally we randomly remove a section of the image, again with a 50% chance, this gives us more than enough instances to train on, this approach was based on [this paper](https://arxiv.org/abs/1708.04896).
 
 # A first test: Fruit classification + weight averages
 
-We made a CNN that classified the images just by their fruit class. For this classifier we tried various network architectures, trained from scratch. The architecture that got the best performance reached a <span class="tooltip"> classification accuracy of 70% <span class="tooltiptext">In perspective: random guessing would give a 1/7 = 14% classification accuracy</span> </span>, which consisted of N layers ....
+We made a CNN that classified the images just by their fruit class. For this classifier we tried various network architectures, trained from scratch. The architecture that got the best performance reached a <span class="tooltip"> classification accuracy of 83% <span class="tooltiptext">In perspective: random guessing would give a 1/7 = 14% classification accuracy</span> </span>, this result was obtained by using transfer learning on a pre-trained ResNet model.
 
-So we can classify fruits, that means that we already have the most simple CNN for weight estimation, we can have our fruit classifier guess the fruit and then take the average weight of that fruit as our weight estimation. Using this naive approach we get results...
+So we can classify fruits, that means that we already have the most simple CNN for weight estimation: we can have our fruit classifier guess the fruit and then take the average weight of that fruit as our weight estimation. While this approach sounds simplistic, it is likely the basis of what any CNN will do. To judge how good our weight estimators work we will calculate the <span class="tooltip"> 10th, 50th and 90th percentile of the absolute difference <span class="tooltiptext">Quick reminder: the n-th percentile value means there is a n% chance that the model guess was off by that value or less. </span> </span> between the real weight and the guessed weight. This method resulted in ...
+
+To visualize any results, we will plot them in histograms with the same buckets throughout this article, as to be able to easily compare them. In this histogram we see that this result...
 
 # Attempt two: Weight range classifier
 
-Next we tried to train a single CNN to classify the fruits again, but this time we tried to classify them by their weight range. This means that instead of 1 label for each fruit class, we created classes for every N grams (0-N, N-2N, 2N-3N, etc...), results...
+Next we tried to train a single CNN to classify the fruits again, but this time we tried to classify them by their weight range. This means that instead of 1 label for each fruit class, we created classes for every N grams (0-N, N-2N, 2N-3N, etc...), the model was then trained to predict the weight class. The best result using this approach was again by using transfer learning on a pre-trained ResNet model. This approach took slightly longer to train, but did obtain good results, improving over the simple fruit classification strategy. After some testing we concluded that the best performing bucket size (N) was 2 grams, which gave us ... . Getting 0 for the 10th percentile means that we have a 10% chance to estimate the exact right weight! Again, we also visualize the results of this approach below:
 
-# Using multiple networks?
+# Another try: Regression on a single model output
 
-Things...
+Finally we tried to create a single output for our model, a single number 

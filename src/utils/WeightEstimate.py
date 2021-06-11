@@ -31,10 +31,9 @@ def evaluate_weight_inference(model, dataset, model_output_to_weight):
 
 
 def train_the_thing(model, name, train_set, test_set,
-    disp_labels=[], criterion=torch.nn.CrossEntropyLoss(),
-    epochs=20):
+    disp_labels=[], criterion=torch.nn.CrossEntropyLoss()):
     # First check if we already trained this model
-    model_cache = f"./models/{name}_e{epochs}.model"
+    model_cache = f"./models/{name}.model"
     if os.path.isfile(model_cache):
         print("Using a cached, trained model")
         model.load_state_dict(torch.load(model_cache))
@@ -42,7 +41,7 @@ def train_the_thing(model, name, train_set, test_set,
         return
 
     optimizer = torch.optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
-    train(model, criterion, optimizer, train_set, epochs = epochs)
+    cross_validate(model, criterion, optimizer, train_set)
     torch.save(model.state_dict(), model_cache)
 
     # validate_results = [ ]
