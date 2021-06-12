@@ -24,8 +24,9 @@ def train(model, criterion, optimizer, dataset, epochs=2, batch_size=4):
         return train_epoch(model, criterion, optimizer, train_loader)
     avgloss = 0
     for epoch in range(epochs):
-        avgloss += train_epoch(model, criterion, optimizer, train_loader)
-        print(f"  [ epoch {str(epoch + 1):>2s} ] loss: {avgloss:.3f}")
+        thisloss = train_epoch(model, criterion, optimizer, train_loader)
+        print(f"  [ epoch {str(epoch + 1):>2s} ] loss: {thisloss:.3f}")
+        avgloss += thisloss
     return avgloss / epochs
 
 def train_until(model, criterion, optimizer, train_set,
