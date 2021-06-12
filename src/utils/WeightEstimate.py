@@ -35,7 +35,8 @@ def evaluate_weight_inference(model, dataset, model_output_to_weight):
 
 
 def train_the_thing(model, name, train_set, test_set,
-    disp_labels=[], criterion=torch.nn.CrossEntropyLoss()):
+    disp_labels=[], criterion=torch.nn.CrossEntropyLoss(),
+    epochs=15):
     # First check if we already trained this model
     model_cache = f"./models/{name}.model"
     if os.path.isfile(model_cache):
@@ -44,7 +45,10 @@ def train_the_thing(model, name, train_set, test_set,
     else:
         train_set.to_device()
         optimizer = torch.optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
-        cross_validate(model, criterion, optimizer, train_set, batch_size=6)
+        if epochs == 0:
+            cross_validate(model, criterion, optimizer, train_set, batch_size=4)
+        else:
+            train(model, criterion, optimizer, train_set, epochs, batch_size=4)
         train_set.to_device("cpu")
         if os.path.isdir(os.path.dirname(model_cache)):
             os.makedirs(os.path.dirname(model_cache), exist_ok=True)

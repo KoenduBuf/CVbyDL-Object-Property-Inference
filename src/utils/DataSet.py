@@ -53,7 +53,7 @@ class FruitImageDataset(data.Dataset):
         # Check which files to include in this set
         if folder is None: return
         foldere = os.fsencode(folder)
-        for file in os.listdir(foldere):
+        for file in sorted(os.listdir(foldere)):
             filename = os.fsdecode(file)
             # Check if the file is an image
             if not img_file_extension(filename): continue
