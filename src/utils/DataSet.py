@@ -65,7 +65,6 @@ class FruitImageDataset(data.Dataset):
             if fi.goodness > 2: continue    # Dont use bad quality images
             self.fruit_images.append(fi)
         # Load all images, normalize and maybe on GPU even
-        random.shuffle(self.fruit_images)
         self.lbl_transform = lbl_transform # do these last, to compute
         self.img_transform_base = img_transform_base
 
@@ -171,6 +170,7 @@ def get_datasets(lbl_transform, image_wh=128, device="cpu", print_tables=True,
         TRANSFORMS_AUG, device, lbl_transform)
     test_set  = train_set.split_1_in_n(10)
     test_set.img_transform_aug = None
+    random.shuffle(train_set.fruit_images)
     if print_tables:
         print_summary_tables(
             (train_set, "TRAIN"),

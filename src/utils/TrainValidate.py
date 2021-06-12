@@ -104,8 +104,10 @@ def get_model_results(model, dataset, output_transform=lambda o:o,
     with torch.no_grad():
         for images, labels in data_loader:
             # Run our network
-            outputs = output_transform(model(images))
-            outputs, labels = outputs.cpu(), labels.cpu()
+            outputs = model(images)
+            outputs = outputs.cpu()
+            outputs = output_transform(outputs)
+            labels  = labels.cpu()
             actual_values = torch.cat( (actual_values, labels) )
             model_values  = torch.cat( (model_values, outputs) )
             if criterion_for_loss:

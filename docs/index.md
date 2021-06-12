@@ -38,16 +38,25 @@ With the already small dataset, and the split into a train and test set, we have
 
 # A first test: Fruit classification + weight averages
 
-We made a CNN that classified the images just by their fruit class. For this classifier we tried various network architectures, trained from scratch. The architecture that got the best performance reached a <span class="tooltip"> classification accuracy of 83% <span class="tooltiptext">In perspective: random guessing would give a 1/7 = 14% classification accuracy</span> </span>, this result was obtained by using transfer learning on a pre-trained ResNet model.
+We made a CNN that classified the images just by their fruit class. For this classifier we tried various network architectures, trained from scratch. The architecture that got the best performance reached a <span class="tooltip"> classification accuracy of 91.5% <span class="tooltiptext">In perspective: random guessing would give a 1/7 = 14% classification accuracy</span> </span>, this result was obtained by using transfer learning on a pre-trained ResNet18 model.
 
-So we can classify fruits, that means that we already have the most simple CNN for weight estimation: we can have our fruit classifier guess the fruit and then take the average weight of that fruit as our weight estimation. While this approach sounds simplistic, it is likely the basis of what any CNN will do. To judge how good our weight estimators work we will calculate the <span class="tooltip"> 10th, 50th and 90th percentile of the absolute difference <span class="tooltiptext">Quick reminder: the n-th percentile value means there is a n% chance that the model guess was off by that value or less. </span> </span> between the real weight and the guessed weight. This method resulted in ...
+So we can classify fruits, that means that we already have the most simple CNN for weight estimation: we can have our fruit classifier guess the fruit and then take the average weight of that fruit as our weight estimation. While this approach sounds simplistic, it is likely the basis of what any CNN will do. To judge how good our weight estimators work we will calculate the <span class="tooltip"> 10th, 50th and 90th percentile of the absolute difference <span class="tooltiptext">Quick reminder: the n-th percentile value means there is a n% chance that the model guess was off by that value or less. </span> </span> between the real weight and the guessed weight. This method resulted in ```2.2```, ```11.6```, and ```50.5``` for the 10th, 50th and 90th percentile of the absolute difference.
 
-To visualize any results, we will plot them in histograms with the same buckets throughout this article, as to be able to easily compare them. In this histogram we see that this result...
+To visualize any results, we will plot them in histograms with the same buckets throughout this article, as to be able to easily compare them. In this histogram we see that this approach
+![fruit classify strategy](https://koendubuf.github.io/CVbyDL-Object-Property-Inference/results/resnet18_fruit_classify.png)
 
-# Attempt two: Weight range classifier
 
-Next we tried to train a single CNN to classify the fruits again, but this time we tried to classify them by their weight range. This means that instead of 1 label for each fruit class, we created classes for every N grams (0-N, N-2N, 2N-3N, etc...), the model was then trained to predict the weight class. The best result using this approach was again by using transfer learning on a pre-trained ResNet model. This approach took slightly longer to train, but did obtain good results, improving over the simple fruit classification strategy. After some testing we concluded that the best performing bucket size (N) was 2 grams, which gave us ... . Getting 0 for the 10th percentile means that we have a 10% chance to estimate the exact right weight! Again, we also visualize the results of this approach below:
+# Attempt two: Weight window classifier
+
+Next we tried to train a single CNN to classify the fruits again, but this time we tried to classify them by their weight range. This means that instead of 1 label for each fruit class, <span class="tooltip">we created classes for every N grams<span class="tooltiptext"> So, we have classes 0-N, N-2N, 2N-3N, etc... </span> </span>, the model was then trained to predict the weight class. When testing the estimations of this strategy we took the window range that the classifier gave, and took the average value in that range as the weight guessed by the model. The best result using this approach was again by using transfer learning on a pre-trained ResNet18 model. This approach took slightly longer to train, but did obtain good results, improving over the simple fruit classification strategy. After some testing we concluded that the best performing bucket size (N) was 2 grams, which gave us ```0.0```, ```5.0```, and ```60.1``` for the 10th, 50th and 90th percentile of the absolute difference, respectively. Getting 0 for the 10th percentile means that we have a 10% chance to estimate the exact right weight, and a 50% chance to be off by 5 or less grams is also quite a good score!
+
+Again, we also visualize the results of this approach below:
+![weight window strategy](https://koendubuf.github.io/CVbyDL-Object-Property-Inference/results/resnet18_weight_window.png)
 
 # Another try: Regression on a single model output
 
-Finally we tried to create a single output for our model, a single number 
+Finally we created a model that output just a single number for the weight of the fruit in the image. The results of this model were worse than the other 2 methods, but not by that much, it obtained a score of ```4.5```, ```23.7```, and ```55.1``` for the 3 percentiles in order. These results are also graphed below, where we see visually that it does not do nearly as good as the other 2 models ![weight reguression strategy](https://koendubuf.github.io/CVbyDL-Object-Property-Inference/results/resnet18_weight_regression.png)
+
+# Conclusion
+
+When looking at these strategies, we can conclude that the CNN will focus mostly on which fruit is in the picture, while taking a little extra information from the image to guess a

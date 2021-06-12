@@ -11,10 +11,11 @@ def evaluate_weight_inference(model, dataset, model_output_to_weight):
     dataset.to_device()
     dataset.lbl_transform = lambda fi: fi.weight
     print("\nEVALUATING WEIGHT INFERENCE")
-    actual_weights, guessed_weights = get_model_results(
+    actual_weights, guessed_weights, _ = get_model_results(
         model, dataset, model_output_to_weight)
     dataset.to_device("cpu")
-    actual_weights, guessed_weights = actual_weights.cpu(), guessed_weights.cpu()
+    actual_weights = actual_weights.cpu()
+    guessed_weights = guessed_weights.cpu()
     # Calculate some stats about the performance
     diffs_w  = torch.sub(actual_weights, guessed_weights).numpy()
     pc10, pc50, pc90 = np.percentile(np.abs(diffs_w), [ 10, 50, 90 ])
@@ -27,6 +28,7 @@ def evaluate_weight_inference(model, dataset, model_output_to_weight):
         weights=np.ones(len(diffs_w)) / len(diffs_w))
     plt.gca().yaxis.set_major_formatter(PercentFormatter(1))
     plt.title("Grams off from actual weight")
+    plt.savefig("../docs/results/last_run.png")
     plt.show()
     # Return the differences to graph together maybe
     return diffs_w
@@ -39,18 +41,16 @@ def train_the_thing(model, name, train_set, test_set,
     if os.path.isfile(model_cache):
         print("Using a cached, trained model")
         model.load_state_dict(torch.load(model_cache))
-        model.eval()
-        return
-
-    train_set.to_device()
-    optimizer = torch.optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
-    cross_validate(model, criterion, optimizer, train_set, batch_size=6)
-    train_set.to_device("cpu")
-
-    os.makedirs(model_cache, exist_ok=True)
-    torch.save(model.state_dict(), model_cache)
+    else:
+        train_set.to_device()
+        optimizer = torch.optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
+        cross_validate(model, criterion, optimizer, train_set, batch_size=6)
+        train_set.to_device("cpu")
+        if os.path.isdir(os.path.dirname(model_cache)):
+            os.makedirs(os.path.dirname(model_cache), exist_ok=True)
+            torch.save(model.state_dict(), model_cache)
 
     if isinstance(criterion, torch.nn.CrossEntropyLoss):
-        train_set.to_device()
+        test_set.to_device()
         validate_classifier(model, test_set, show_for_classes=disp_labels)
-        train_set.to_device("cpu")
+        test_set.to_device("cpu")
