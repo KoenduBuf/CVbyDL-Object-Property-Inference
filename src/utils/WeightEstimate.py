@@ -1,4 +1,5 @@
 
+import os
 import numpy as np
 import torch, torchvision
 from utils.DataSet import *
@@ -27,8 +28,9 @@ def evaluate_weight_inference(model, dataset, model_output_to_weight):
     plt.hist(diffs_w, bins=plot_bins, edgecolor='black', linewidth=1,
         weights=np.ones(len(diffs_w)) / len(diffs_w))
     plt.gca().yaxis.set_major_formatter(PercentFormatter(1))
+    if os.path.isdir("../docs/results/"):
+        plt.savefig("../docs/results/last_run.png")
     plt.title("Grams off from actual weight")
-    plt.savefig("../docs/results/last_run.png")
     plt.show()
     # Return the differences to graph together maybe
     return diffs_w

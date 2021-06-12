@@ -36,11 +36,11 @@ Training our ML models on the whole dataset would be unfair since we can then no
 
 With the already small dataset, and the split into a train and test set, we have very little data left in the train set for the network to learn from. Our solution to this problem was data augmentation. Specifically any training instance is first turned into 4 separate instances by applying a vertical flip of the image, and then a horizontal flip, both with 50% chance. This strategy already gives a significant amount more unique training instances, 4 times as much to be exact. Finally we randomly remove a section of the image, again with a 50% chance, this gives us more than enough instances to train on, and will remove the chance of over-fitting significantly, and make the model more robust to occlusion. This last approach was based on [this paper](https://arxiv.org/abs/1708.04896).
 
-All of these data transformations are only applied on the training set, this way we serve the real images to the model during testing to get the most accurate real world test results, these images will only have minor things done to them. For the modifications done to all images (train and test sets) we only transform them by resizing them to 224x224, and normalizing their channels to have a mean of ```0.485, 0.456, and 0.406```, while normalizing the standard deviation to ```0.229, 0.224, and 0.225``` respectively unless otherwise specified. These values were chosen as they are the default values for the ResNet model input, and thus are proven to work well.
+All of these data transformations are only applied on the training set, this way we serve the real images to the model during testing to get the most accurate real world test results, these images will only have minor things done to them. For the modifications done to all images (train and test sets): we only transform them by resizing them to 224x224, and normalizing their channels to have a mean of ```0.485, 0.456, and 0.406```, while normalizing the standard deviation to ```0.229, 0.224, and 0.225``` respectively unless otherwise specified. These values were chosen as they are the default values for the ResNet model input, and thus are proven to work well.
 
 # Showing results
 
-To judge how good our weight estimators work we will calculate the <span class="tooltip"> 10th, 50th and 90th percentile of the absolute difference <span class="tooltiptext">Quick reminder: the n-th percentile value means there is a n% chance that the model guess was off by that value or less. </span> </span> between the real weight and the guessed weight.
+To judge how good our weight estimators work we will calculate the <span class="tooltip"> 10th, 50th and 90th percentile <span class="tooltiptext">Quick reminder: the n-th percentile value means there is a n% chance that the model guess was off by that value or less. </span> </span> of the absolute difference between the real weight and the guessed weight.
 
 We will also visualize the results of each of our approaches in a histogram with consistent bucket sizes throughout this article. For this we chose to set the size of each bucket to 10 grams, with the center bucket being all guess within 5 grams from the actual weight, as this clearly shows a good yet clear visual of the accuracy.
 
@@ -49,21 +49,24 @@ We will also visualize the results of each of our approaches in a histogram with
 We made a CNN that classified the images just by their fruit class. For this classifier we tried various network architectures, trained from scratch. The architecture that got the best performance reached a <span class="tooltip"> classification accuracy of 89.5% <span class="tooltiptext">In perspective: random guessing would give a 1/7 = 14% classification accuracy</span> </span>, this result was obtained by using transfer learning on a pre-trained ResNet18 model.
 
 So we can classify fruits, that means that we already have the most simple CNN for weight estimation: we can have our fruit classifier guess the fruit and then take the average weight of that fruit as our weight estimation. While this approach sounds simplistic, it is likely the basis of what any CNN will do. This method resulted in ```2.6```, ```12.8```, and ```55.3``` for the 10th, 50th and 90th percentile of the absolute difference, and of course we also plotted these results below:
-
-![fruit classify strategy](https://koendubuf.github.io/CVbyDL-Object-Property-Inference/results/resnet18_fruit_classify.png)
+![fruit classify strategy](results/resnet18_fruit_classify.png)
 
 
 # Attempt two: Weight window classifier
 
 Next we tried to train a single CNN to classify the fruits again, but this time we tried to classify them by their weight range. This means that instead of 1 label for each fruit class, <span class="tooltip">we created classes for every N grams<span class="tooltiptext"> So, we have classes 0-N, N-2N, 2N-3N, etc... </span> </span>, the model was then trained to predict the weight class. When testing the estimations of this strategy we took the window range that the classifier gave, and took the average value in that range as the weight guessed by the model. The best result using this approach was again by using transfer learning on a pre-trained ResNet18 model. This approach took slightly longer to train, but did obtain good results, improving over the simple fruit classification strategy.
 
-After some testing we concluded that the best performing bucket size (N) was 2 grams, which gave us ```0.0```, ```7.5```, and ```60.1``` for the 10th, 50th and 90th percentile of the absolute difference, respectively. Getting 0 for the 10th percentile means that we have a 10% chance to estimate the exact right weight, and a 50% chance to be off by 5 or less grams is also quite a good score! Again, we also visualize the results of this approach below:
-
-![weight window strategy](https://koendubuf.github.io/CVbyDL-Object-Property-Inference/results/resnet18_weight_window.png)
+After some testing we concluded that the best performing bucket size (N) was 2 grams, which gave us ```0.0```, ```7.5```, and ```60.1``` for the 10th, 50th and 90th percentile of the absolute difference, respectively. Getting 0 for the 10th percentile means that we have a 10% chance to estimate the exact right weight, and a 50% chance to be off by 7.5 or less grams is also quite a good score! Again, we also visualize the results of this approach below:
+![weight window strategy](results/resnet18_weight_window.png)
 
 # Another try: Regression on a single model output
 
-Finally we created a model that output just a single number for the weight of the fruit in the image. The results of this model were worse than the other 2 methods, but not by that much, it obtained a score of ```3.9```, ```24.8```, and ```54.3``` for the 3 percentiles in order. These results are also graphed below, where we see visually that it does not do nearly as good as the other 2 models ![weight regression strategy](https://koendubuf.github.io/CVbyDL-Object-Property-Inference/results/resnet18_weight_regression.png)
+We then created a model that output just a single number for the weight of the fruit in the image. The results of this model were worse than the other 2 methods, but not by that much, it obtained a score of ```3.9```, ```24.8```, and ```54.3``` for the 3 percentiles in order, again by using transfer learning on a ResNet18 architecture. These results are also graphed below, where we see visually that it does not do nearly as good as the other 2 models
+![weight regression strategy](results/resnet18_weight_regression.png)
+
+# A final effort: .....
+
+
 
 # Conclusion
 
