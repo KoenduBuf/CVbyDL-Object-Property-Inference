@@ -64,9 +64,11 @@ After some testing we concluded that the best performing bucket size (N) was 2 g
 We then created a model that output just a single number for the weight of the fruit in the image. The results of this model were worse than the other 2 methods, but not by that much, it obtained a score of ```3.9```, ```24.8```, and ```54.3``` for the 3 percentiles in order, again by using transfer learning on a ResNet18 architecture. These results are also graphed below, where we see visually that it does not do nearly as good as the other 2 models
 ![weight regression strategy](results/resnet18_weight_regression.png)
 
-# A final effort: .....
+# A final effort: Comparing dataset image resolution
 
+When trying to understand how a model can predict fruit weight based on a image, it makes sense that the model would use the textures of the fruits to have information about the scale of the fruit in the image. To assess the impact of textures we trained models on datasets of different image resultions (32, 64, 128, 192, 224), since the ResNet18 architecture resizes all images to 224px no higher resolutions were used. An average of absolute prediction error over 5 runs is shown in the graph. On visual inspection it is clear that the lowest resolution has a loss of information needed for the model to discriminate, however for 64px and higher there is no noticeable difference.
 
+![image resolution comparison](results/plot_resolutions.png)
 
 # Conclusion
 
