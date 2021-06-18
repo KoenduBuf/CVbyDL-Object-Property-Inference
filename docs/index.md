@@ -40,15 +40,17 @@ All of these data transformations are only applied on the training set, this way
 
 # Showing results
 
-To judge how good our weight estimators work we will calculate the <span class="tooltip"> 10th, 50th and 90th percentile. <span class="tooltiptext">Quick reminder:the n-th percentile value means there is a n% chance that the model guess was off by that value or less. </span> </span> of the absolute difference between the real weight and the guessed weight.
+To judge how good our weight estimators work we will calculate the <span class="tooltip"> 10th, 50th and 90th percentile<span class="tooltiptext">Quick reminder:the n-th percentile value means there is a n% chance that the model guess was off by that value or less. </span> </span> of the absolute difference between the real weight and the guessed weight.
 
-We will also visualize the results of each of our approaches in a histogram with consistent bucket sizes throughout this article. For this we chose to set the size of each bucket to 10 grams, with the center bucket being all guess within 5 grams from the actual weight, as this clearly shows a good yet clear visual of the accuracy.
+We will also visualize the results of each of our approaches in a histogram with consistent bucket sizes throughout this article. For this we chose to set the size of each bucket to 10 grams, with the center bucket being all guess within 5 grams from the actual weight, as this shows a good yet clear visual of the accuracy.
+
+<span class="note"><b>Quick note: </b>If you see a dotted line under some text, hover over it for a tiny explanation</span>
 
 # Technicalities
 
 To train our models we generally used the same training parameters between methods, as to keep things consistent. For our loss function, we used cross entropy loss for every classifier, and L1 loss for the single value regression in approach three. The optimizer used stated consistent at SGD with a learning rate of 0.001, an the momentum set to 0.9. Finally, the amount of epochs that a model was trained for was determined by k-fold cross validation, and generally came down to 15 epochs unless specified otherwise.
 
-# Comparing input image resolution
+# Comparing input image resolutions
 
 When trying to understand how a model can predict fruit weight based on a image, it makes sense that the model would use the textures of the fruits to have information about the scale of the fruit in the image. To assess the impact of textures we trained models on datasets of different image resolutions (32, 64, 128, 192, 224), since the ResNet18 architecture resizes all images to 224px no higher resolutions were used. An average of absolute prediction error over 5 runs is shown in the graph. On visual inspection it is clear that the lowest resolution has a loss of information needed for the model to discriminate, however for 64px and higher there is no noticeable difference.
 ![image resolution comparison](results/plot_resolutions.png)
@@ -83,4 +85,4 @@ The results when using this approach are ```1.0```, ```13.5```, ```87.4``` again
 
 # Conclusion
 
-When comparing the results of all these strategies, we see that the best strategy still is the weight window classification based on our experiments. This does not mean that this is the general best method, as there are quite some things in our experiments that can be improved like a bigger dataset and more (or less) classes. Additionally we did not test our last approach of the ensemble classifier as well (only 10 epochs and 5 gram windows) due to limited time and a relatively small dataset.
+When comparing the results of all these strategies, we see that the best strategy still is the weight window classification based on our experiments. This does not mean that this is the general best method, as there are quite some things in our experiments that can be improved like a bigger dataset and more (or less) classes. Additionally we did not test our last approach of the ensemble classifier as well (only 10 epochs and 5 gram windows) due to limited time and a relatively small dataset. Overall the project was a success, we learned a lot and created classifiers that can predict the weight of fruits a lot better than we would be able to!
