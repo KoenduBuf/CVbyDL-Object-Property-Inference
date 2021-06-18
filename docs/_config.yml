@@ -1,7 +1,7 @@
 baseurl:    /CVbyDL-Object-Property-Inference
 locale:     "en"
 title:      Weight inference from object images
-tagline:    A blog for the Computer Vision by Deep Learning course
+tagline:    A blog for the 'Computer Vision by Deep Learning' course
 writers:    Koen du Buf and Olivier Dikken
 
 author:
