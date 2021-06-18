@@ -71,6 +71,9 @@ After some testing we concluded that the best performing bucket size (N) was 2 g
 We then created a model that output just a single number for the weight of the fruit in the image. The results of this model were worse than the other 2 methods, but not by that much, it obtained a score of ```3.9```, ```24.8```, and ```54.3``` for the 3 percentiles in order, again by using transfer learning on a ResNet18 architecture. These results are also graphed below, where we see visually that it does not do nearly as good as the other 2 models
 ![weight regression strategy](results/resnet18_weight_regression.png)
 
+# Comparing to a common approach
+
+Ensemble classifer...
 
 # Conclusion
 
