@@ -40,11 +40,13 @@ All of these data transformations are only applied on the training set, this way
 
 # Showing results
 
-To judge how good our weight estimators work we will calculate the <span class="tooltip"> 10th, 50th and 90th percentile.
-
- <span class="tooltiptext"><b>Quick reminder:</b> the n-th percentile value means there is a n% chance that the model guess was off by that value or less. </span> </span> of the absolute difference between the real weight and the guessed weight.
+To judge how good our weight estimators work we will calculate the <span class="tooltip"> 10th, 50th and 90th percentile. <span class="tooltiptext">Quick reminder:the n-th percentile value means there is a n% chance that the model guess was off by that value or less. </span> </span> of the absolute difference between the real weight and the guessed weight.
 
 We will also visualize the results of each of our approaches in a histogram with consistent bucket sizes throughout this article. For this we chose to set the size of each bucket to 10 grams, with the center bucket being all guess within 5 grams from the actual weight, as this clearly shows a good yet clear visual of the accuracy.
+
+# Technicalities
+
+To train our models we generally used the same training parameters between methods, as to keep things consistent. For our loss function, we used cross entropy loss for every classifier, and L1 loss for the single value regression in approach three. The optimizer used stated consistent at SGD with a learning rate of 0.001, an the momentum set to 0.9. Finally, the amount of epochs that a model was trained for was determined by k-fold cross validation, and generally came down to 15 epochs unless specified otherwise.
 
 # Comparing input image resolution
 
