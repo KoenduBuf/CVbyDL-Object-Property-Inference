@@ -41,15 +41,14 @@ All of these data transformations are only applied on the training set, this way
 # Showing results
 
 To judge how good our weight estimators work we will calculate the <span class="tooltip"> 10th, 50th and 90th percentile.
- 
+
  <span class="tooltiptext"><b>Quick reminder:</b> the n-th percentile value means there is a n% chance that the model guess was off by that value or less. </span> </span> of the absolute difference between the real weight and the guessed weight.
 
 We will also visualize the results of each of our approaches in a histogram with consistent bucket sizes throughout this article. For this we chose to set the size of each bucket to 10 grams, with the center bucket being all guess within 5 grams from the actual weight, as this clearly shows a good yet clear visual of the accuracy.
 
-# Comparing dataset image resolution
+# Comparing input image resolution
 
-When trying to understand how a model can predict fruit weight based on a image, it makes sense that the model would use the textures of the fruits to have information about the scale of the fruit in the image. To assess the impact of textures we trained models on datasets of different image resultions (32, 64, 128, 192, 224), since the ResNet18 architecture resizes all images to 224px no higher resolutions were used. An average of absolute prediction error over 5 runs is shown in the graph. On visual inspection it is clear that the lowest resolution has a loss of information needed for the model to discriminate, however for 64px and higher there is no noticeable difference.
-
+When trying to understand how a model can predict fruit weight based on a image, it makes sense that the model would use the textures of the fruits to have information about the scale of the fruit in the image. To assess the impact of textures we trained models on datasets of different image resolutions (32, 64, 128, 192, 224), since the ResNet18 architecture resizes all images to 224px no higher resolutions were used. An average of absolute prediction error over 5 runs is shown in the graph. On visual inspection it is clear that the lowest resolution has a loss of information needed for the model to discriminate, however for 64px and higher there is no noticeable difference.
 ![image resolution comparison](results/plot_resolutions.png)
 
 # A first test: Fruit classification + weight averages
@@ -71,10 +70,11 @@ After some testing we concluded that the best performing bucket size (N) was 2 g
 We then created a model that output just a single number for the weight of the fruit in the image. The results of this model were worse than the other 2 methods, but not by that much, it obtained a score of ```3.9```, ```24.8```, and ```54.3``` for the 3 percentiles in order, again by using transfer learning on a ResNet18 architecture. These results are also graphed below, where we see visually that it does not do nearly as good as the other 2 models
 ![weight regression strategy](results/resnet18_weight_regression.png)
 
-# Comparing to a common approach
+# The final attempt: Ensemble classifier
 
-Ensemble classifer...
+For the final attempt we tried an ensemble classifier. For this we trained a whole classifier for every weight window, where the classifier only decides wether an instance is in that weight window or not. To get the weight from this model we look at the confidence of each classifier and take the weight window that has the highest positive confidence. In theory this approach lets a network fully focus on the single subtask of classifying something to be in our outside its weight range. Of course this approach has the downside of having to train a lot of different networks, and thus is very time and resource consuming. For this reason our attempt with this model was done by weight windows of 5 grams, and only training each network for 10 epochs. The results when using this approach are ```1.0```, ```13.5```, ```87.4``` again using the usual 10th, 50th and 90th percentile. From this we can see that is does pretty well, with a 10th and 50th percentile score better than the single output regression, and comparable to the fruit classifier, on the other hand we see that the 90th percentile is further out, signifying that a wrong weight using this model will be a lot more wrong than the others. Again, we also visualize this below:
+![weight regression strategy](results/net_ensamble.png)
 
 # Conclusion
 
-When comparing the results of these strategies, we see that
+When comparing the results of all these strategies, we see that the best strategy still is the weight window classification based on our experiments. This does not mean that this is the general best method, as there are quite some things in our experiments that can be improved like a bigger dataset and more (or less) classes. Additionally we did not test our last approach of the ensemble classifier as well (only 10 epochs and 5 gram windows) due to limited time and a relatively small dataset.

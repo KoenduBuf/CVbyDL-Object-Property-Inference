@@ -18,12 +18,15 @@ def train_epoch(model, criterion, optimizer, data_loader):
     return running_loss / len(data_loader)
 
 def train(model, criterion, optimizer, dataset, epochs=2, batch_size=4, sampler=None):
-    if sampler is not None:
+    if sampler is None:
         train_loader = torch.utils.data.DataLoader(dataset,
             batch_size=batch_size, shuffle=True, num_workers=0)
     else:
-        train_loader = torch.utils.data.DataLoader(dataset,
-            batch_size=batch_size, num_workers=0, sampler=sampler)
+        # For unbalanced dataset we create a weighted sampler
+        train_loader = torch.utils.data.DataLoader(dataset, batch_size=batch_size,
+            shuffle = False, sampler = sampler, num_workers=0)
+        # train_loader = torch.utils.data.DataLoader(dataset,
+        #     batch_size=batch_size, num_workers=0, sampler=sampler)
     if epochs == 1:
         return train_epoch(model, criterion, optimizer, train_loader)
     avgloss = 0

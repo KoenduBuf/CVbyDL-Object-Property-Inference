@@ -159,8 +159,8 @@ class FruitImageDataset(data.Dataset):
 
 
 # Get a test and a dataset, resize images if needed. Norm from ResNet
-def get_datasets(lbl_transform, image_wh=128, device="cpu", print_tables=True,
-    norm_mean=(0.485, 0.456, 0.406), norm_std=(0.229, 0.224, 0.225)):
+def get_datasets(lbl_transform=lambda fi: fi.weight, image_wh=128, device="cpu",
+    print_tables=True, norm_mean=(0.485, 0.456, 0.406), norm_std=(0.229, 0.224, 0.225)):
     # If the dataset is not there yet, then make it
     resizer = Resizer('../images', '../images')
     to_folder = resizer.autoresize(image_wh)
