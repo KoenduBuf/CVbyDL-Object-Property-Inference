@@ -54,6 +54,7 @@ To train our models we generally used the same training parameters between metho
 
 When trying to understand how a model can predict fruit weight based on a image, it makes sense that the model would use the textures of the fruits to have information about the scale of the fruit in the image. To assess the impact of textures we trained models on datasets of different image resolutions (32, 64, 128, 192, 224), since the ResNet18 architecture resizes all images to 224px no higher resolutions were used. An average of absolute prediction error over 5 runs is shown in the graph. On visual inspection it is clear that the lowest resolution has a loss of information needed for the model to discriminate, however for 64px and higher there is no noticeable difference.
 ![image resolution comparison](results/plot_resolutions.png)
+As a next experiment to better assess the importance of textures a baseline model could be trained by applying a style transfer technique to the fruit image dataset to keep the main features (i.e. shapes, outlines) of the fruits but change the textures. 
 
 # A first test: Fruit classification + weight averages
 
