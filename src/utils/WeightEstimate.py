@@ -38,6 +38,31 @@ def evaluate_weight_inference(model, dataset, model_output_to_weight):
 
 def train_the_thing(model, name, train_set, test_set,
     disp_labels=[], criterion=torch.nn.CrossEntropyLoss(),
+    epochs=15, sampler=None):
+    # First check if we already trained this model
+    model_cache = f"./models/{name}.model"
+    if os.path.isfile(model_cache):
+        print("Using a cached, trained model")
+        model.load_state_dict(torch.load(model_cache))
+    else:
+        train_set.to_device()
+        optimizer = torch.optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
+        if epochs == 0:
+            cross_validate(model, criterion, optimizer, train_set, batch_size=4)
+        else:
+            train(model, criterion, optimizer, train_set, epochs, batch_size=4, sampler=sampler)
+        train_set.to_device("cpu")
+        if os.path.isdir(os.path.dirname(model_cache)):
+            os.makedirs(os.path.dirname(model_cache), exist_ok=True)
+            torch.save(model.state_dict(), model_cache)
+
+    if isinstance(criterion, torch.nn.CrossEntropyLoss):
+        test_set.to_device()
+        validate_classifier(model, test_set, show_for_classes=disp_labels)
+        test_set.to_device("cpu")
+
+def train_ensemble(model, name, train_set, test_set,
+    disp_labels=[], criterion=torch.nn.CrossEntropyLoss(),
     epochs=15):
     # First check if we already trained this model
     model_cache = f"./models/{name}.model"

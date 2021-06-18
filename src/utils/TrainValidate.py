@@ -17,9 +17,13 @@ def train_epoch(model, criterion, optimizer, data_loader):
         running_loss += loss.item()
     return running_loss / len(data_loader)
 
-def train(model, criterion, optimizer, dataset, epochs=2, batch_size=4):
-    train_loader = torch.utils.data.DataLoader(dataset,
-        batch_size=batch_size, shuffle=True, num_workers=0)
+def train(model, criterion, optimizer, dataset, epochs=2, batch_size=4, sampler=None):
+    if sampler is not None:
+        train_loader = torch.utils.data.DataLoader(dataset,
+            batch_size=batch_size, shuffle=True, num_workers=0)
+    else:
+        train_loader = torch.utils.data.DataLoader(dataset,
+            batch_size=batch_size, num_workers=0, sampler=sampler)
     if epochs == 1:
         return train_epoch(model, criterion, optimizer, train_loader)
     avgloss = 0
