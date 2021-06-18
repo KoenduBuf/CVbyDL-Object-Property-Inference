@@ -71,9 +71,11 @@ After some testing we concluded that the best performing bucket size (N) was 2 g
 We then created a model that output just a single number for the weight of the fruit in the image. The results of this model were worse than the other 2 methods, but not by that much, it obtained a score of ```3.9```, ```24.8```, and ```54.3``` for the 3 percentiles in order, again by using transfer learning on a ResNet18 architecture. These results are also graphed below, where we see visually that it does not do nearly as good as the other 2 models
 ![weight regression strategy](results/resnet18_weight_regression.png)
 
-# Comparing to a common approach
+# Comparing to a common approach: Multiple 1-vs-All classifiers
 
-Ensemble classifer...
+The ensemble classifier approach (with several <i>1 vs all</i> classifiers) is a common approach for multiclass classification. When starting this project we looked at other approaches to classifying object weight based on image of which most use an ensemble classifier approach. Here we use an ensemble classifier composed of multiple ResNet models which are each trained in 1 vs all configuration with as positive class all images within a fixed range of weights e.g. [5g-10g] and as negative class all other images. With each ResNet model trained to recognize a different range of weights, to predict the class of a new image we pass the image to each ResNet model which returns a prediction if the image is the positive or negative class of that model, then we go over the confidence values of each model that predicted the image as positive and take the corresponding positive class weight range of the model with the highest confidence to determine the weight range that the ensemble model predicts. 
+
+<b>Window Size choice:</b> A single ResNet needs to be trained per weight range, and the amount of models depends on the size of the weight range (the smaller the range the more models are needed to cover all object weights). Futhermore each model needs to train on a dataset with a balanced (stratified) amount of positive and negative samples (otherwise we have a large imbalance and it predicts all input as negative), and to have enough training data the window size needs to be large enough that it contains several instances. Taking these considerations into account, we chose a window size of 5 which still allows for a single fruit type to be spread over multiple windows and results in 29 classifiers for our image dataset which goes from 68 to 209g <i>round_up((209-68)/5) = 29</i>. The models are trained for 15 epochs.
 
 # Conclusion
 
